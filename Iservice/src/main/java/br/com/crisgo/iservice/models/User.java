@@ -37,10 +37,6 @@ public class User {
     @Column(name = "phone", nullable = false)
     private String phone;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "address_id", referencedColumnName = "address_id")
-    private Address address;
-
     @CreationTimestamp
     private LocalDateTime created_at;
 

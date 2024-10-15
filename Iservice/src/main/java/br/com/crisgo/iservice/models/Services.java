@@ -33,12 +33,6 @@ public class Services {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "provider_id")
-    private Integer sellerId; // Use sellerId to match table name
-
-    @Column(name = "category_id")
-    private Integer categoryId;
-
     @ManyToOne // Many services can belong to one seller
     @JoinColumn(name = "provider_id", nullable = false, insertable = false, updatable = false)
     private Seller seller;
