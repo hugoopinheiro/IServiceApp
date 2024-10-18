@@ -9,20 +9,20 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Data
-@Entity(name = "services")
-@Table(name = "services")
+@Entity
+@Table(name = "products")
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(of = "service_id")
-public class Services {
+@EqualsAndHashCode(of = "productId")
+public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "service_id")
-    private Long service_id;
+    @Column(name = "product_id")
+    private Long productId;
 
     @Column(name = "name", nullable = false)
-    private String serviceName; // Use camelCase for consistency
+    private String name; // Use camelCase for consistency
 
     @Column(name = "description")
     private String description;
@@ -30,14 +30,19 @@ public class Services {
     @Column(name = "price", nullable = false)
     private Double price; // Use Double for currency representation
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @ManyToOne // Many services can belong to one seller
-    @JoinColumn(name = "provider_id", nullable = false, insertable = false, updatable = false)
+    @Column(name = "category", nullable = false)
+    private String category;
+
+    @ManyToOne
+    @JoinColumn(name = "seller_id", nullable = false)
     private Seller seller;
 
-    @ManyToOne // Many services can belong to one category
-    @JoinColumn(name = "category_id", nullable = false, insertable = false, updatable = false)
-    private Category category;
+    // Set the createdAt timestamp before persisting
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 }

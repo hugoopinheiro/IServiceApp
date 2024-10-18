@@ -34,7 +34,7 @@ public class Reviews {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne // One seller can have many reviews
-    @JoinColumn(name = "seller_id")
-    private Seller seller;
+    @ManyToOne // One product can have many reviews
+    @JoinColumn(name = "product_id")
+    private Product product;
 }

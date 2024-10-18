@@ -25,8 +25,8 @@ public class Orders {
     private User user;
 
     @ManyToOne // One service can have many orders
-    @JoinColumn(name = "service_id")
-    private Services service;
+    @JoinColumn(name = "product_id")
+    private Product product;
 
     @Column(name = "order_date")
     private LocalDateTime orderDate;

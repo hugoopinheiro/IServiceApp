@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
-    public ErrorResponse handleUserNotFoundExceotion(UserNotFoundException e){
+    public ErrorResponse handleUserNotFoundExceotion(EntityNotFoundException e){
         return new ErrorResponse("USER_NOT_FOUND", e.getMessage());
     }
 }
