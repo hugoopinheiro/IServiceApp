@@ -33,4 +33,9 @@ public class UserController {
         User savedUser = userRepository.save(user);
         return ResponseEntity.ok().build();
     }
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id){
+        userService.deleteUserById(id);
+        return ResponseEntity.noContent().build();
+    }
 }
