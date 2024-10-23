@@ -15,4 +15,16 @@ public class UserService {
         return userRepository.findById(id)
                 .orElseThrow(() ->  new EntityNotFoundException("Usuario de ID " + id + " não encontrado"));
     }
+    @Transactional
+    public void deleteUserById(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new EntityNotFoundException("Usuario de ID " + id + " não encontrado");
+        }
+        userRepository.deleteById(id);
+    }
+
+    public void saveOrUpdate(User user) {
+        userRepository.save(user);
+    }
+
 }
