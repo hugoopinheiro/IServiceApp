@@ -27,4 +27,20 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional
+    public User updateUser(Long id, User userDetails ) {
+        // Find existing user
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario de ID " + id + " não encontrado"));
+
+        // Update fields
+        existingUser.setName(userDetails.getName());  // example field, adjust based on your model
+        existingUser.setEmail(userDetails.getEmail());
+        existingUser.setAddress(userDetails.getAddress());
+
+        // Save the updated seller
+        return userRepository.save(existingUser);
+    }
+
+
 }
