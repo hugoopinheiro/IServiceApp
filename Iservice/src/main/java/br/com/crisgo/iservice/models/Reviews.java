@@ -37,4 +37,8 @@ public class Reviews {
     @ManyToOne // One product can have many reviews
     @JoinColumn(name = "product_id")
     private Product product;
+    @PrePersist
+    protected void onCreate() {
+        this.reviewDate = LocalDateTime.now();
+    }
 }

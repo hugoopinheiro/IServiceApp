@@ -24,7 +24,7 @@ public class ProductController {
         Product createdProduct = productService.createProduct(product, sellerId);
         return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
     }
-    @GetMapping("/{sellerId}/product/{name}")
+    @GetMapping("seller/{sellerId}/product/{name}")
     public ResponseEntity<Product> getProductBySellerAndName(
             @PathVariable Long sellerId,
             @PathVariable String name) {

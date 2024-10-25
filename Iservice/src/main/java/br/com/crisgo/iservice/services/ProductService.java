@@ -40,7 +40,5 @@ public class ProductService {
                 .orElseThrow(() -> new EntityNotFoundException("Product not found with name: " + name));
     }
 
-
-    // Other product service methods...
 }
 

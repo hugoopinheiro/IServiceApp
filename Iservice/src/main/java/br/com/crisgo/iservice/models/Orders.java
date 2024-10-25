@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+
 @Entity(name = "orders")
 @Table(name = "orders")
 @Data
@@ -24,9 +25,13 @@ public class Orders {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne // One service can have many orders
+    @ManyToOne // One product can have many orders
     @JoinColumn(name = "product_id")
     private Product product;
+
+    @ManyToOne // One seller can have many orders
+    @JoinColumn(name = "seller_id")
+    private Seller seller;
 
     @Column(name = "order_date")
     private LocalDateTime orderDate;
@@ -37,7 +42,4 @@ public class Orders {
     @Column(name = "total_price")
     private Double totalPrice;
 
-    @ManyToOne
-    @JoinColumn(name = "credit_card_id")
-    private CreditCard creditCard;
 }
