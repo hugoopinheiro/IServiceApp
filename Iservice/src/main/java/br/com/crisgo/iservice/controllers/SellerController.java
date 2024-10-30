@@ -1,5 +1,7 @@
 package br.com.crisgo.iservice.controllers;
 
+import br.com.crisgo.iservice.DTO.RequestSellerDTO;
+import br.com.crisgo.iservice.DTO.ResponseSellerDTO;
 import br.com.crisgo.iservice.models.Seller;
 import br.com.crisgo.iservice.services.AddressService;
 import br.com.crisgo.iservice.services.SellerService;
@@ -21,33 +23,29 @@ public class SellerController {
         this.sellerService = sellerService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<Seller>> getAllSeller() {
-        List<Seller> sellers = sellerService.findAll();
-        return ResponseEntity.ok(sellers);
+    // Replace @RequestBody Seller with @RequestBody RequestSellerDTO in endpoints
+    @PostMapping
+    public ResponseEntity<ResponseSellerDTO> registerSeller(@RequestBody @Validated RequestSellerDTO requestSellerDTO) {
+        ResponseSellerDTO responseSellerDTO = sellerService.saveOrUpdate(requestSellerDTO);
+        return ResponseEntity.ok(responseSellerDTO);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ResponseSellerDTO> updateSeller(@PathVariable Long id, @RequestBody @Validated RequestSellerDTO requestSellerDTO) {
+        ResponseSellerDTO updatedSeller = sellerService.updateSeller(id, requestSellerDTO);
+        return ResponseEntity.ok(updatedSeller);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Seller> getSeller(@PathVariable Long id) {
-        Seller seller = sellerService.findById(id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<ResponseSellerDTO> getSeller(@PathVariable Long id) {
+        ResponseSellerDTO sellerDTO = sellerService.findById(id);
+        return ResponseEntity.ok(sellerDTO);
     }
 
-    @PostMapping
-    public ResponseEntity<Void> registerSeller(@RequestBody Seller seller) {
-        sellerService.saveOrUpdate(seller);
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("{id}")
-    public ResponseEntity<Void> deleteSeller(@PathVariable Long id){
-        sellerService.deleteSellerById(id);
-        return ResponseEntity.noContent().build();
-    }
-    @PutMapping("/{id}")
-    public ResponseEntity<Seller> updateSeller(@PathVariable Long id, @RequestBody @Validated Seller sellerDetails) {
-        Seller updatedSeller = sellerService.updateSeller(id, sellerDetails);
-        return ResponseEntity.ok(updatedSeller);
+    @GetMapping
+    public ResponseEntity<List<ResponseSellerDTO>> getAllSellers() {
+        List<ResponseSellerDTO> sellers = sellerService.findAll();
+        return ResponseEntity.ok(sellers);
     }
 
 }

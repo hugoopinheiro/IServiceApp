@@ -29,5 +29,15 @@ public class ReviewsController {
         List<Reviews> reviews = reviewService.findByProduct(productId);
         return ResponseEntity.ok(reviews);
     }
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteReview(@PathVariable Long id){
+        reviewService.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<Reviews> updateReview(@PathVariable Long id, @RequestBody @Validated Reviews reviewsDetails) {
+        Reviews updatedReview = reviewService.updateReview(id, reviewsDetails);
+        return ResponseEntity.ok(updatedReview);
+    }
 
 }

@@ -6,6 +6,7 @@ import br.com.crisgo.iservice.repositorys.OrdersRepository;
 import br.com.crisgo.iservice.repositorys.ProductRepository;
 import br.com.crisgo.iservice.repositorys.SellerRepository;
 import br.com.crisgo.iservice.repositorys.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -48,10 +49,31 @@ public class OrdersService {
                 .orElseThrow(() -> new EntityNotFoundException("Usuario não encontrado"));
         // F\inding and setting orders linked to the user
         List<Orders> orders = ordersRepository.findByUser(user);
-        // Checking if theres some order
+        // Checking if order exists
         if (orders.isEmpty()) {
             throw new EntityNotFoundException("Nenhuma compra feita por esse usuario foi encontrada");
         }
         return orders;
+    }
+    @Transactional
+    public void deleteById(Long id) {
+        if (!ordersRepository.existsById(id)) {
+            throw new EntityNotFoundException("Produto de ID " + id + " não encontrado");
+        }
+        productRepository.deleteById(id);
+    }
+
+
+    @Transactional
+    public Orders updateOrder(Long id, Orders orderDetails ) {
+        // Find existing order
+        Orders existingOrder = ordersRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Compra de ID " + id + " não encontrado"));
+
+        // Update fields
+        existingOrder.setStatus(orderDetails.getStatus());
+
+        // Save the updated order
+        return ordersRepository.save(existingOrder);
     }
 }

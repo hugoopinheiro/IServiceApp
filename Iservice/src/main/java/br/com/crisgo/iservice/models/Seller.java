@@ -1,11 +1,10 @@
 package br.com.crisgo.iservice.models;
 
-import br.com.crisgo.iservice.DTO.RequestAddress;
-import br.com.crisgo.iservice.DTO.RequestSeller;
+import br.com.crisgo.iservice.DTO.RequestSellerDTO;
+import br.com.crisgo.iservice.DTO.ResponseSellerDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 @Entity(name = "seller")
@@ -44,15 +43,36 @@ public class Seller {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    public Seller(RequestSeller requestSeller) {
-        this.name = requestSeller.name();
-        this.email = requestSeller.email();
-        this.password = requestSeller.password();
-        this.phone = requestSeller.phone();
-        this.sellerDescription = getSellerDescription();
-        this.createdAt = requestSeller.createdAt();
+    public Seller(RequestSellerDTO requestSellerDTO) {
+        this.name = requestSellerDTO.getName();
+        this.email = requestSellerDTO.getEmail();
+        this.password = requestSellerDTO.getPassword();
+        this.phone = requestSellerDTO.getPhone();
+        this.sellerDescription = requestSellerDTO.getSellerDescription();
 
+        // Map AddressDTO to Address entity if provided
+        if (requestSellerDTO.getAddress() != null) {
+            this.address = new Address();
+            this.address.setStreet(requestSellerDTO.getAddress().getStreet());
+            this.address.setCep(requestSellerDTO.getAddress().getCep());
+            this.address.setComplement(requestSellerDTO.getAddress().getComplement());
+            this.address.setState(requestSellerDTO.getAddress().getState());
+            this.address.setHouseNumber(requestSellerDTO.getAddress().getHouseNumber());
+        }
     }
+
+
+    public ResponseSellerDTO toResponseDTO() {
+        ResponseSellerDTO dto = new ResponseSellerDTO();
+        dto.setId(this.sellerId);
+        dto.setName(this.name);
+        dto.setEmail(this.email);
+        dto.setPhone(this.phone);
+        dto.setSellerDescription(this.sellerDescription);
+        dto.setCreatedAt(this.createdAt);
+        return dto;
+    }
+
 
     public Long getId() {return this.sellerId;}
 }

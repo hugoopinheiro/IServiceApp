@@ -29,17 +29,17 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> registerUSer(@RequestBody @Validated User user) {
-        User savedUser = userRepository.save(user);
+    public ResponseEntity<Void> createUser(@RequestBody @Validated User user) {
+        userService.saveOrUpdate(user);
         return ResponseEntity.ok().build();
     }
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id){
-        userService.deleteUserById(id);
+        userService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
     @PutMapping("/{id}")
-    public ResponseEntity<Seller> updateUser(@PathVariable Long id, @RequestBody @Validated User userDetails) {
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody @Validated User userDetails) {
         User updatedUser = userService.updateUser(id, userDetails);
         return ResponseEntity.ok(updatedUser);
     }

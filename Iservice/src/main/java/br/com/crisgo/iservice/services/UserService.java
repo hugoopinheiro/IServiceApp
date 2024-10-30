@@ -3,6 +3,7 @@ package br.com.crisgo.iservice.services;
 import br.com.crisgo.iservice.exceptions.EntityNotFoundException;
 import br.com.crisgo.iservice.models.User;
 import br.com.crisgo.iservice.repositorys.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,7 @@ public class UserService {
                 .orElseThrow(() ->  new EntityNotFoundException("Usuario de ID " + id + " não encontrado"));
     }
     @Transactional
-    public void deleteUserById(Long id) {
+    public void deleteById(Long id) {
         if (!userRepository.existsById(id)) {
             throw new EntityNotFoundException("Usuario de ID " + id + " não encontrado");
         }
@@ -36,7 +37,6 @@ public class UserService {
         // Update fields
         existingUser.setName(userDetails.getName());  // example field, adjust based on your model
         existingUser.setEmail(userDetails.getEmail());
-        existingUser.setAddress(userDetails.getAddress());
 
         // Save the updated seller
         return userRepository.save(existingUser);

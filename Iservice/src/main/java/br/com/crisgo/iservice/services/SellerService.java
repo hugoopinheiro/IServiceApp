@@ -1,6 +1,9 @@
 package br.com.crisgo.iservice.services;
 
+import br.com.crisgo.iservice.DTO.RequestSellerDTO;
+import br.com.crisgo.iservice.DTO.ResponseSellerDTO;
 import br.com.crisgo.iservice.exceptions.EntityNotFoundException;
+import br.com.crisgo.iservice.mapper.DozerMapper;
 import br.com.crisgo.iservice.models.Seller;
 import br.com.crisgo.iservice.repositorys.SellerRepository;
 import jakarta.transaction.Transactional;
@@ -19,15 +22,35 @@ public class SellerService {
         this.sellerRepository = sellerRepository;
     }
 
-    // Find all sellers from the database
-    public List<Seller> findAll() {
-        return sellerRepository.findAll();
+    public List<ResponseSellerDTO> findAll() {
+        List<Seller> sellers = sellerRepository.findAll();
+        return DozerMapper.parseListObject(sellers, ResponseSellerDTO.class);
     }
 
-    // Find seller by ID
-    public Seller findById(Long id) {
-        return sellerRepository.findById(id)
+    public ResponseSellerDTO findById(Long id) {
+        Seller seller = sellerRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario de ID " + id + " não encontrado"));
+        return DozerMapper.parseObject(seller, ResponseSellerDTO.class);
+    }
+
+    public ResponseSellerDTO saveOrUpdate(RequestSellerDTO requestSellerDTO) {
+        // Map RequestSellerDTO to Seller entity
+        Seller seller = DozerMapper.parseObject(requestSellerDTO, Seller.class);
+        Seller savedSeller = sellerRepository.save(seller);
+        // Map saved Seller entity to ResponseSellerDTO
+        return DozerMapper.parseObject(savedSeller, ResponseSellerDTO.class);
+    }
+
+    @Transactional
+    public ResponseSellerDTO updateSeller(Long id, RequestSellerDTO requestSellerDTO) {
+        Seller existingSeller = sellerRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario de ID " + id + " não encontrado"));
+
+        // Map fields from requestSellerDTO onto existingSeller
+        DozerMapper.mapOntoExistingObject(requestSellerDTO, existingSeller);
+
+        Seller updatedSeller = sellerRepository.save(existingSeller);
+        return DozerMapper.parseObject(updatedSeller, ResponseSellerDTO.class);
     }
 
     @Transactional
@@ -37,24 +60,4 @@ public class SellerService {
         }
         sellerRepository.deleteById(id);
     }
-
-    public void saveOrUpdate(Seller seller) {
-        sellerRepository.save(seller);
-    }
-
-    @Transactional
-    public Seller updateSeller(Long id, Seller sellerDetails) {
-        // Find existing seller
-        Seller existingSeller = sellerRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario de ID " + id + " não encontrado"));
-
-        // Update fields
-        existingSeller.setName(sellerDetails.getName());  // example field, adjust based on your model
-        existingSeller.setEmail(sellerDetails.getEmail());
-        existingSeller.setAddress(sellerDetails.getAddress());
-
-        // Save the updated seller
-        return sellerRepository.save(existingSeller);
-    }
-
 }

@@ -1,6 +1,7 @@
 package br.com.crisgo.iservice.controllers;
 
 import br.com.crisgo.iservice.models.Product;
+import br.com.crisgo.iservice.models.User;
 import br.com.crisgo.iservice.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,5 +34,15 @@ public class ProductController {
         Product product = productService.findBySellerAndName(sellerId, name);
 
         return ResponseEntity.ok(product);
+    }
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id){
+        productService.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<Product> updateUser(@PathVariable Long id, @RequestBody @Validated Product productDetails) {
+        Product updatedProduct = productService.updateProduct(id, productDetails);
+        return ResponseEntity.ok(updatedProduct);
     }
 }

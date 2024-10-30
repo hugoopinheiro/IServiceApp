@@ -12,11 +12,13 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(of = "address_id")
+@EqualsAndHashCode(of = "addressId")  // Uses Java camel case style
 public class Address {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long address_id;
+    @Column(name = "address_id")
+    private Long addressId;  // Updated to camel case
 
     @Column(nullable = false)
     private String cep;
@@ -24,11 +26,8 @@ public class Address {
     @Column(nullable = false)
     private String complement;
 
-    @Column(nullable = false)
-    private String house_number;
-
-    @Column(nullable = false)
-    private String neighborhood;
+    @Column(nullable = false, name = "house_number")
+    private String houseNumber;
 
     @Column(nullable = false)
     private String street;
@@ -37,11 +36,10 @@ public class Address {
     private String state;
 
     public Address(RequestAddress requestAddress) {
-        this.cep = requestAddress.cep();
-        this.complement = requestAddress.complement();
-        this.house_number = requestAddress.house_number();
-        this.neighborhood = requestAddress.neighborhood();
-        this.street = requestAddress.street();
-        this.state = requestAddress.state();
+        this.cep = requestAddress.getCep();
+        this.complement = requestAddress.getComplement();
+        this.houseNumber = requestAddress.getHouseNumber();
+        this.street = requestAddress.getStreet();
+        this.state = requestAddress.getState();
     }
 }

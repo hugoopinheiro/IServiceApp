@@ -7,6 +7,7 @@ import br.com.crisgo.iservice.models.User;
 import br.com.crisgo.iservice.repositorys.ProductRepository;
 import br.com.crisgo.iservice.repositorys.ReviewsRepository;
 import br.com.crisgo.iservice.repositorys.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,6 +51,28 @@ public class ReviewsService {
         }
 
         return reviews;
+    }
+    @Transactional
+    public void deleteById(Long id) {
+        if (!reviewsRepository.existsById(id)) {
+            throw new EntityNotFoundException("Produto de ID " + id + " não encontrado");
+        }
+        reviewsRepository.deleteById(id);
+    }
+
+
+    @Transactional
+    public Reviews updateReview(Long id, Reviews reviewsDetails ) {
+        // Find existing user
+        Reviews existingReview = reviewsRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Produto de ID " + id + " não encontrado"));
+
+        // Update fields
+        existingReview.setComments(reviewsDetails.getComments());  // example field, adjust based on your model
+        existingReview.setRating(reviewsDetails.getRating());
+
+        // Save the updated seller
+        return reviewsRepository.save(existingReview);
     }
 
 }

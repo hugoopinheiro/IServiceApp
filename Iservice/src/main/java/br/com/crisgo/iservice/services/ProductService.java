@@ -3,8 +3,10 @@ package br.com.crisgo.iservice.services;
 import br.com.crisgo.iservice.exceptions.EntityNotFoundException;
 import br.com.crisgo.iservice.models.Product;
 import br.com.crisgo.iservice.models.Seller;
+import br.com.crisgo.iservice.models.Product;
 import br.com.crisgo.iservice.repositorys.ProductRepository;
 import br.com.crisgo.iservice.repositorys.SellerRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +41,27 @@ public class ProductService {
         return productRepository.findBySellerAndName(seller, name)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found with name: " + name));
     }
+    @Transactional
+    public void deleteById(Long id) {
+        if (!productRepository.existsById(id)) {
+            throw new EntityNotFoundException("Produto de ID " + id + " não encontrado");
+        }
+        productRepository.deleteById(id);
+    }
 
+
+    @Transactional
+    public Product updateProduct(Long id, Product productDetails ) {
+        // Find existing user
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Produto de ID " + id + " não encontrado"));
+
+        // Update fields
+        existingProduct.setName(productDetails.getName());  // example field, adjust based on your model
+        existingProduct.setPrice(productDetails.getPrice());
+
+        // Save the updated seller
+        return productRepository.save(existingProduct);
+    }
 }
 
