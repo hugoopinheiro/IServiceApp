@@ -1,4 +1,4 @@
-CREATE TABLE bankAccount (
+CREATE TABLE bank_account (
     bankAccount_id SERIAL PRIMARY KEY,
     seller_id INTEGER NOT NULL,
     number_account VARCHAR(50) NOT NULL,

@@ -1,9 +1,11 @@
 // ResponseSellerDTO.java
-package br.com.crisgo.iservice.DTO;
+package br.com.crisgo.iservice.DTO.response;
 
+import br.com.crisgo.iservice.models.User;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 public class ResponseCreditCardDTO {

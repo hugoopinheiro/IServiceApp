@@ -1,17 +1,15 @@
 package br.com.crisgo.iservice.models;
 
-import br.com.crisgo.iservice.DTO.RequestAddress;
+import br.com.crisgo.iservice.DTO.request.RequestAddressDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "address")
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 @EqualsAndHashCode(of = "addressId")  // Uses Java camel case style
 public class Address {
 
@@ -34,12 +32,13 @@ public class Address {
 
     @Column(nullable = false)
     private String state;
+    public Address() {}
 
-    public Address(RequestAddress requestAddress) {
-        this.cep = requestAddress.getCep();
-        this.complement = requestAddress.getComplement();
-        this.houseNumber = requestAddress.getHouseNumber();
-        this.street = requestAddress.getStreet();
-        this.state = requestAddress.getState();
+    public Address(RequestAddressDTO dto) {
+        this.cep = dto.getCep();
+        this.complement = dto.getComplement();
+        this.houseNumber = dto.getHouseNumber();
+        this.street = dto.getStreet();
+        this.state = dto.getState();
     }
 }

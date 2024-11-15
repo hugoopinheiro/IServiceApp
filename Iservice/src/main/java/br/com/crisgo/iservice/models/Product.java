@@ -1,5 +1,7 @@
 package br.com.crisgo.iservice.models;
 
+import br.com.crisgo.iservice.DTO.request.RequestProductDTO;
+import br.com.crisgo.iservice.DTO.request.RequestSellerDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -45,4 +47,5 @@ public class Product {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
+
 }

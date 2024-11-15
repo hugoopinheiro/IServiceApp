@@ -1,7 +1,7 @@
 package br.com.crisgo.iservice.services;
 
-import br.com.crisgo.iservice.DTO.RequestSellerDTO;
-import br.com.crisgo.iservice.DTO.ResponseSellerDTO;
+import br.com.crisgo.iservice.DTO.request.RequestSellerDTO;
+import br.com.crisgo.iservice.DTO.response.ResponseSellerDTO;
 import br.com.crisgo.iservice.exceptions.EntityNotFoundException;
 import br.com.crisgo.iservice.mapper.DozerMapper;
 import br.com.crisgo.iservice.models.Seller;
@@ -33,7 +33,7 @@ public class SellerService {
         return DozerMapper.parseObject(seller, ResponseSellerDTO.class);
     }
 
-    public ResponseSellerDTO saveOrUpdate(RequestSellerDTO requestSellerDTO) {
+    public ResponseSellerDTO createSeller(RequestSellerDTO requestSellerDTO) {
         // Map RequestSellerDTO to Seller entity
         Seller seller = DozerMapper.parseObject(requestSellerDTO, Seller.class);
         Seller savedSeller = sellerRepository.save(seller);

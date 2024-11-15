@@ -1,5 +1,6 @@
-package br.com.crisgo.iservice.DTO;
+package br.com.crisgo.iservice.DTO.request;
 
+import br.com.crisgo.iservice.models.Seller;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

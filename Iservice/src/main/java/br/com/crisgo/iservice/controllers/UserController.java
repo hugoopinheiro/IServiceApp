@@ -1,46 +1,51 @@
-
 package br.com.crisgo.iservice.controllers;
 
-import br.com.crisgo.iservice.models.Address;
-import br.com.crisgo.iservice.models.Seller;
-import br.com.crisgo.iservice.models.User;
-import br.com.crisgo.iservice.repositorys.UserRepository;
-
-import br.com.crisgo.iservice.services.AddressService;
+import br.com.crisgo.iservice.DTO.response.ResponseUserDTO;
+import br.com.crisgo.iservice.DTO.request.RequestUserDTO;
 import br.com.crisgo.iservice.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
 @RestController
-@RequestMapping("/user")
+@RequestMapping(value = "/user", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 public class UserController {
-    @Autowired
-    private UserRepository userRepository;
+
     @Autowired
     private UserService userService;
-    @Autowired
-    private AddressService addressService;
 
-    @GetMapping("/{id}")
-    public User getUser(@PathVariable Long id) {
-        return userService.findById(id); // assuming userService is injected
+    @GetMapping(value = "/{id}", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+    public ResponseEntity<EntityModel<ResponseUserDTO>> getUser(@PathVariable Long id) {
+        ResponseUserDTO userDTO = userService.findById(id);
+        EntityModel<ResponseUserDTO> resource = EntityModel.of(userDTO);
+        return ResponseEntity.ok(resource);
     }
 
-    @PostMapping
-    public ResponseEntity<Void> createUser(@RequestBody @Validated User user) {
-        userService.saveOrUpdate(user);
-        return ResponseEntity.ok().build();
+    @PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE },
+            produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+    public ResponseEntity<EntityModel<ResponseUserDTO>> createUser(@RequestBody @Validated RequestUserDTO requestUserDTO) {
+        ResponseUserDTO createdUser = userService.save(requestUserDTO);
+        EntityModel<ResponseUserDTO> resource = EntityModel.of(createdUser);
+        return ResponseEntity.ok(resource);
     }
-    @DeleteMapping("{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id){
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody @Validated User userDetails) {
-        User updatedUser = userService.updateUser(id, userDetails);
-        return ResponseEntity.ok(updatedUser);
+
+    @PutMapping(value = "/{id}", consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE },
+            produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+    public ResponseEntity<EntityModel<ResponseUserDTO>> updateUser(@PathVariable Long id, @RequestBody @Validated RequestUserDTO requestUserDTODetails) {
+        ResponseUserDTO updatedUser = userService.updateUser(id, requestUserDTODetails);
+        EntityModel<ResponseUserDTO> resource = EntityModel.of(updatedUser);
+        return ResponseEntity.ok(resource);
     }
 }

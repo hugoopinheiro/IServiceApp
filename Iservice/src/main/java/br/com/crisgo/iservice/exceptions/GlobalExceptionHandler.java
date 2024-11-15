@@ -14,4 +14,10 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleUserNotFoundExceotion(EntityNotFoundException e){
         return new ErrorResponse("USER_NOT_FOUND", e.getMessage());
     }
+    @ExceptionHandler(InvalidJwtAuthenticationException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseBody
+    public ErrorResponse handleInvalidJwtAuthenticationException(InvalidJwtAuthenticationException e){
+        return new ErrorResponse("FORBIDDEN", e.getMessage());
+    }
 }

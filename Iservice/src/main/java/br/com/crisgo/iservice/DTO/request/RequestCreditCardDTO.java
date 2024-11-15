@@ -1,8 +1,10 @@
-package br.com.crisgo.iservice.DTO;
+package br.com.crisgo.iservice.DTO.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+
+import java.util.Date;
 
 @Data
 public class RequestCreditCardDTO {

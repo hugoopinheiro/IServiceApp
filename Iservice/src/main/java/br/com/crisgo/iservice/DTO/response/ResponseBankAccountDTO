@@ -1,9 +1,8 @@
 // ResponseSellerDTO.java
-package br.com.crisgo.iservice.DTO;
+package br.com.crisgo.iservice.DTO.response;
 
+import br.com.crisgo.iservice.models.Seller;
 import lombok.Data;
-
-import java.time.LocalDateTime;
 
 @Data
 public class ResponseBankAccountDTO {
@@ -11,5 +10,5 @@ public class ResponseBankAccountDTO {
     private Long id;
     private String numberAccount;
     private String agency;
-    private Seller seller; 
+    private Seller seller;
 }

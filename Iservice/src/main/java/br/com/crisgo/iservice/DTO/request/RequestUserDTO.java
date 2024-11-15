@@ -1,14 +1,17 @@
-package br.com.crisgo.iservice.DTO;
+package br.com.crisgo.iservice.DTO.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class RequestSellerDTO {
+public class RequestUserDTO {
 
     @NotBlank(message = "Name is mandatory")
     private String name;
+
+    @NotBlank(message = "userName is mandatory")
+    private String userName;
 
     @NotBlank(message = "Email is mandatory")
     @Email
@@ -19,9 +22,4 @@ public class RequestSellerDTO {
 
     @NotBlank(message = "Phone is mandatory")
     private String phone;
-
-    @NotBlank(message = "Description is mandatory")
-    private String sellerDescription;
-
-    private RequestAddress address;  // Nested DTO for address
 }

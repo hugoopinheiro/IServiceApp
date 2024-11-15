@@ -1,9 +1,8 @@
 package br.com.crisgo.iservice.controllers;
 
-import br.com.crisgo.iservice.models.Orders;
-import br.com.crisgo.iservice.models.Product;
+import br.com.crisgo.iservice.DTO.request.RequestOrdersDTO;
+import br.com.crisgo.iservice.DTO.response.ResponseOrdersDTO;
 import br.com.crisgo.iservice.services.OrdersService;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -14,30 +13,40 @@ import java.util.List;
 @RequestMapping("/orders")
 @Validated
 public class OrdersController {
-    OrdersService ordersService;
+
+    private final OrdersService ordersService;
 
     public OrdersController(OrdersService ordersService) {
         this.ordersService = ordersService;
     }
 
     @PostMapping("user/{userId}/seller/{sellerId}/product/{productId}")
-    public ResponseEntity createOrder(@PathVariable Long userId, @PathVariable Long productId, @PathVariable Long sellerId, @RequestBody Orders orders){
-        Orders createdOrders = ordersService.createOrder(userId, productId, sellerId, orders);
-        return ResponseEntity.ok(createdOrders);
+    public ResponseEntity<ResponseOrdersDTO> createOrder(
+            @PathVariable Long userId,
+            @PathVariable Long productId,
+            @PathVariable Long sellerId,
+            @RequestBody @Validated RequestOrdersDTO requestOrdersDTO) {
+        ResponseOrdersDTO createdOrder = ordersService.createOrder(userId, productId, sellerId, requestOrdersDTO);
+        return ResponseEntity.ok(createdOrder);
     }
+
     @GetMapping("user/{userId}")
-    public ResponseEntity findOrdersByUser(@PathVariable Long userId){
-        List<Orders> ordersList = ordersService.findByUser(userId);
+    public ResponseEntity<List<ResponseOrdersDTO>> findOrdersByUser(@PathVariable Long userId) {
+        List<ResponseOrdersDTO> ordersList = ordersService.findByUser(userId);
         return ResponseEntity.ok(ordersList);
     }
+
     @DeleteMapping("{id}")
-    public ResponseEntity<Void> deleteOrder(@PathVariable Long id){
+    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
         ordersService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
     @PutMapping("/{id}")
-    public ResponseEntity<Orders> updateOrder(@PathVariable Long id, @RequestBody @Validated Orders orderDetails) {
-        Orders updatedOrder = ordersService.updateOrder(id, orderDetails);
+    public ResponseEntity<ResponseOrdersDTO> updateOrder(
+            @PathVariable Long id,
+            @RequestBody @Validated RequestOrdersDTO requestOrdersDTO) {
+        ResponseOrdersDTO updatedOrder = ordersService.updateOrder(id, requestOrdersDTO);
         return ResponseEntity.ok(updatedOrder);
     }
 }

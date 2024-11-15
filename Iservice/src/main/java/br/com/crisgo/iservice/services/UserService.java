@@ -1,21 +1,42 @@
 package br.com.crisgo.iservice.services;
 
+import br.com.crisgo.iservice.DTO.response.ResponseUserDTO;
+import br.com.crisgo.iservice.controllers.UserController;
 import br.com.crisgo.iservice.exceptions.EntityNotFoundException;
-import br.com.crisgo.iservice.models.User;
+
+import br.com.crisgo.iservice.mapper.DozerMapper;
+import br.com.crisgo.iservice.DTO.request.RequestUserDTO;
 import br.com.crisgo.iservice.repositorys.UserRepository;
+import br.com.crisgo.iservice.models.User;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
 
     @Autowired
-    private UserRepository userRepository;
-    public User findById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() ->  new EntityNotFoundException("Usuario de ID " + id + " não encontrado"));
+    private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
+
+    public ResponseUserDTO findById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario de ID " + id + " não encontrado"));
+        ResponseUserDTO responseUserDTO = DozerMapper.parseObject(user, ResponseUserDTO.class);
+        addHateoasLinks(responseUserDTO);
+        return responseUserDTO;
+    }
+
     @Transactional
     public void deleteById(Long id) {
         if (!userRepository.existsById(id)) {
@@ -24,23 +45,46 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public void saveOrUpdate(User user) {
-        userRepository.save(user);
+    public ResponseUserDTO save(RequestUserDTO requestUserDTO) {
+        User user = DozerMapper.parseObject(requestUserDTO, User.class);
+        User savedUser = userRepository.save(user);
+        ResponseUserDTO responseUserDTO = DozerMapper.parseObject(savedUser, ResponseUserDTO.class);
+        addHateoasLinks(responseUserDTO);
+        return responseUserDTO;
     }
 
     @Transactional
-    public User updateUser(Long id, User userDetails ) {
-        // Find existing user
-        User existingUser = userRepository.findById(id)
+    public ResponseUserDTO updateUser(Long id, RequestUserDTO requestUserDTODetails) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario de ID " + id + " não encontrado"));
+        user.setName(requestUserDTODetails.getName());
+        user.setEmail(requestUserDTODetails.getEmail());
+        user.setPhone(requestUserDTODetails.getPhone());
+        user.setPassword(requestUserDTODetails.getPassword());
 
-        // Update fields
-        existingUser.setName(userDetails.getName());  // example field, adjust based on your model
-        existingUser.setEmail(userDetails.getEmail());
-
-        // Save the updated seller
-        return userRepository.save(existingUser);
+        User updatedUser = userRepository.save(user);
+        ResponseUserDTO responseUserDTO = DozerMapper.parseObject(updatedUser, ResponseUserDTO.class);
+        addHateoasLinks(responseUserDTO);
+        return responseUserDTO;
     }
 
+    private void addHateoasLinks(ResponseUserDTO userDTO) {
+        Link selfLink = linkTo(methodOn(UserController.class).getUser(userDTO.getId())).withSelfRel();
+        Link updateLink = linkTo(methodOn(UserController.class).updateUser(userDTO.getId(), null)).withRel("update");
+        Link deleteLink = linkTo(methodOn(UserController.class).deleteUser(userDTO.getId())).withRel("delete");
 
+        userDTO.add(selfLink);
+        userDTO.add(updateLink);
+        userDTO.add(deleteLink);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        var user = userRepository.findByUsername(username);
+        if (user != null){
+            return user;
+        } else {
+            throw new UsernameNotFoundException("Username " + username + " not found");
+        }
+    }
 }

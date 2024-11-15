@@ -1,7 +1,7 @@
 package br.com.crisgo.iservice.models;
 
-import br.com.crisgo.iservice.DTO.RequestSellerDTO;
-import br.com.crisgo.iservice.DTO.ResponseSellerDTO;
+import br.com.crisgo.iservice.DTO.request.RequestSellerDTO;
+import br.com.crisgo.iservice.DTO.response.ResponseSellerDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

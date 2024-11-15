@@ -1,8 +1,8 @@
-package br.com.crisgo.iservice.DTO;
+package br.com.crisgo.iservice.DTO.request;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class RequestAddress {
+public class RequestAddressDTO {
     @NotBlank(message = "CEP é obrigatorio")
     private String cep;
     @NotBlank(message = "Complemento é obrigatorio")

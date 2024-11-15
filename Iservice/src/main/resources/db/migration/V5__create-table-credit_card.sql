@@ -1,4 +1,4 @@
-CREATE TABLE creditCard (
+CREATE TABLE credit_card (
     credit_card_id SERIAL PRIMARY KEY,
     expiration_date DATE NOT NULL,
     owner VARCHAR(200) NOT NULL,

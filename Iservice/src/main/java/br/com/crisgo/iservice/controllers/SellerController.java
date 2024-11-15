@@ -1,9 +1,7 @@
 package br.com.crisgo.iservice.controllers;
 
-import br.com.crisgo.iservice.DTO.RequestSellerDTO;
-import br.com.crisgo.iservice.DTO.ResponseSellerDTO;
-import br.com.crisgo.iservice.models.Seller;
-import br.com.crisgo.iservice.services.AddressService;
+import br.com.crisgo.iservice.DTO.request.RequestSellerDTO;
+import br.com.crisgo.iservice.DTO.response.ResponseSellerDTO;
 import br.com.crisgo.iservice.services.SellerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +24,7 @@ public class SellerController {
     // Replace @RequestBody Seller with @RequestBody RequestSellerDTO in endpoints
     @PostMapping
     public ResponseEntity<ResponseSellerDTO> registerSeller(@RequestBody @Validated RequestSellerDTO requestSellerDTO) {
-        ResponseSellerDTO responseSellerDTO = sellerService.saveOrUpdate(requestSellerDTO);
+        ResponseSellerDTO responseSellerDTO = sellerService.createSeller(requestSellerDTO);
         return ResponseEntity.ok(responseSellerDTO);
     }
 

@@ -1,4 +1,4 @@
-package br.com.crisgo.iservice.DTO;
+package br.com.crisgo.iservice.DTO.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -8,7 +8,7 @@ import lombok.Data;
 public class RequestPaymentsDTO {
 
     @NotBlank(message = "Name is mandatory")
-    private DOuble amount;
+    private Double amount;
 
     @NotBlank(message = "Email is mandatory")
     @Email

@@ -1,6 +1,7 @@
 // ResponseSellerDTO.java
-package br.com.crisgo.iservice.DTO;
+package br.com.crisgo.iservice.DTO.response;
 
+import br.com.crisgo.iservice.models.Address;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -14,4 +15,5 @@ public class ResponseSellerDTO {
     private String phone;
     private String sellerDescription;
     private LocalDateTime createdAt;
+    private Address address;
 }
