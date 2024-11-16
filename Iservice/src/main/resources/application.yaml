@@ -1,0 +1,42 @@
+#####################################
+# .yaml is cleaner than .properties #
+#####################################
+spring:
+  application:
+    name: Iservice
+  datasource:
+    # TODO: replace db setting with environment variables
+    url: jdbc:postgresql://localhost:5432/Iservice
+    username: postgres
+    password: 01092209
+  jpa:
+    hibernate:
+      ddl-auto: none
+  spring-doc:
+    pathsToMatch:
+      - /auth/**
+      - /api/v1/**
+    swagger-ui:
+      use-root-path: true
+
+
+###########################
+# .properties is ugly btw #
+###########################
+
+#spring.application.name=Iservice
+#
+## Postgresql
+#spring.datasource.url=jdbc:postgresql://localhost:5432/Iservice
+#spring.datasource.username=postgres
+#spring.datasource.password=14273119
+#
+#spring.jpa.hibernate.ddl-auto=update
+#
+#logging.level.org.hibernate=DEBUG
+#logging.level.org.springframework.jdbc.datasource.init.ScriptUtils=DEBUG
+#
+#jwt.secret=your_secret_key
+#jwt.expirationMs=86400000 # 24 hours
+#
+#
