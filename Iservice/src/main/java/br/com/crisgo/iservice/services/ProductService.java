@@ -2,6 +2,10 @@ package br.com.crisgo.iservice.services;
 
 import br.com.crisgo.iservice.DTO.request.RequestProductDTO;
 import br.com.crisgo.iservice.DTO.response.ResponseProductDTO;
+import br.com.crisgo.iservice.DTO.response.ResponseSellerDTO;
+import br.com.crisgo.iservice.DTO.response.ResponseUserDTO;
+import br.com.crisgo.iservice.controllers.ProductController;
+import br.com.crisgo.iservice.controllers.UserController;
 import br.com.crisgo.iservice.exceptions.EntityNotFoundException;
 import br.com.crisgo.iservice.mapper.DozerMapper;
 import br.com.crisgo.iservice.models.Product;
@@ -10,7 +14,12 @@ import br.com.crisgo.iservice.repositorys.ProductRepository;
 import br.com.crisgo.iservice.repositorys.SellerRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Link;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Service
 public class ProductService {
@@ -35,7 +44,9 @@ public class ProductService {
 
         Product savedProduct = productRepository.save(product);
 
-        return DozerMapper.parseObject(savedProduct, ResponseProductDTO.class);
+        ResponseProductDTO responseProductDTO = DozerMapper.parseObject(product, ResponseProductDTO.class);
+        addHateoasLinks(responseProductDTO);
+        return responseProductDTO;
     }
 
     public ResponseProductDTO findBySellerAndName(Long sellerId, String name) {
@@ -47,7 +58,9 @@ public class ProductService {
         Product product = productRepository.findBySellerAndName(seller, name)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found with name: " + name));
 
-        return DozerMapper.parseObject(product, ResponseProductDTO.class);
+        ResponseProductDTO responseProductDTO = DozerMapper.parseObject(product, ResponseProductDTO.class);
+        addHateoasLinks(responseProductDTO);
+        return responseProductDTO;
     }
 
     @Transactional
@@ -74,6 +87,18 @@ public class ProductService {
 
         // Save and return the updated product
         Product updatedProduct = productRepository.save(existingProduct);
-        return DozerMapper.parseObject(updatedProduct, ResponseProductDTO.class);
+        ResponseProductDTO responseProductDTO = DozerMapper.parseObject(updatedProduct, ResponseProductDTO.class);
+        addHateoasLinks(responseProductDTO);
+        return responseProductDTO;
+    }
+
+    private void addHateoasLinks(ResponseProductDTO productDTO) {
+        //Link selfLink = linkTo(methodOn(ProductController.class).getProductBySellerAndName(productDTO.getId())).withSelfRel();
+        Link updateLink = linkTo(methodOn(ProductController.class).updateProduct(productDTO.getId(), null)).withRel("update");
+        Link deleteLink = linkTo(methodOn(ProductController.class).deleteProduct(productDTO.getId())).withRel("delete");
+
+        //productDTO.add(selfLink);
+        productDTO.add(updateLink);
+        productDTO.add(deleteLink);
     }
 }

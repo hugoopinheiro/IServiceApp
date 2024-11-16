@@ -75,6 +75,7 @@ public class User implements UserDetails {
         this.name = dataUser.getName();
         this.email = dataUser.getEmail();
         this.password = dataUser.getPassword();
+        this.userName = dataUser.getUserName();
     }
     public ResponseUserDTO toResponseDTO () {
         ResponseUserDTO dto = new ResponseUserDTO();

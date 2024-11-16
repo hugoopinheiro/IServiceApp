@@ -20,7 +20,7 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @Service
-public class UserService implements UserDetailsService {
+public class UserService {
 
     @Autowired
     private final UserRepository userRepository;
@@ -78,13 +78,13 @@ public class UserService implements UserDetailsService {
         userDTO.add(deleteLink);
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        var user = userRepository.findByUsername(username);
-        if (user != null){
-            return user;
-        } else {
-            throw new UsernameNotFoundException("Username " + username + " not found");
-        }
-    }
+//    @Override
+//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+//        var user = userRepository.findByUsername(username);
+//        if (user != null){
+//            return user;
+//        } else {
+//            throw new UsernameNotFoundException("Username " + username + " not found");
+//        }
+//    }
 }
