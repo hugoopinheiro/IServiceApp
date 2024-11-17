@@ -44,7 +44,7 @@ public class ProductService {
 
         Product savedProduct = productRepository.save(product);
 
-        ResponseProductDTO responseProductDTO = DozerMapper.parseObject(product, ResponseProductDTO.class);
+        ResponseProductDTO responseProductDTO = DozerMapper.parseObject(savedProduct, ResponseProductDTO.class);
         addHateoasLinks(responseProductDTO);
         return responseProductDTO;
     }
@@ -94,8 +94,8 @@ public class ProductService {
 
     private void addHateoasLinks(ResponseProductDTO productDTO) {
         //Link selfLink = linkTo(methodOn(ProductController.class).getProductBySellerAndName(productDTO.getId())).withSelfRel();
-        Link updateLink = linkTo(methodOn(ProductController.class).updateProduct(productDTO.getId(), null)).withRel("update");
-        Link deleteLink = linkTo(methodOn(ProductController.class).deleteProduct(productDTO.getId())).withRel("delete");
+        Link updateLink = linkTo(methodOn(ProductController.class).updateProduct(productDTO.getProductId(), null)).withRel("update");
+        Link deleteLink = linkTo(methodOn(ProductController.class).deleteProduct(productDTO.getProductId())).withRel("delete");
 
         //productDTO.add(selfLink);
         productDTO.add(updateLink);

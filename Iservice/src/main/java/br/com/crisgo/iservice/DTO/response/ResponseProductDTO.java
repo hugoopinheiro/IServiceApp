@@ -1,12 +1,11 @@
 package br.com.crisgo.iservice.DTO.response;
 
-import lombok.Data;
 import org.springframework.hateoas.RepresentationModel;
 
-@Data
+
 public class ResponseProductDTO extends RepresentationModel<ResponseProductDTO> {
 
-    private Long id;
+    private Long productId;
     private String name;
     private String description;
     private Double price;
@@ -15,12 +14,12 @@ public class ResponseProductDTO extends RepresentationModel<ResponseProductDTO> 
 
     public ResponseProductDTO(){}
 
-    public Long getId() {
-        return id;
+    public Long getProductId() {
+        return productId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setProductId(Long productId) {
+        this.productId = productId;
     }
 
     public String getName() {

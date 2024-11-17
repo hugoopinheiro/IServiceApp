@@ -6,8 +6,10 @@ import br.com.crisgo.iservice.exceptions.EntityNotFoundException;
 
 import br.com.crisgo.iservice.mapper.DozerMapper;
 import br.com.crisgo.iservice.DTO.request.RequestUserDTO;
+import br.com.crisgo.iservice.mapper.implementations.ModelMapperImpl;
 import br.com.crisgo.iservice.repositorys.UserRepository;
 import br.com.crisgo.iservice.models.User;
+import com.github.dozermapper.core.Mapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,15 +26,17 @@ public class UserService {
 
     @Autowired
     private final UserRepository userRepository;
+    private final Mapper modelMapper;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, Mapper modelMapper) {
         this.userRepository = userRepository;
+        this.modelMapper = modelMapper;
     }
 
     public ResponseUserDTO findById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario de ID " + id + " não encontrado"));
-        ResponseUserDTO responseUserDTO = DozerMapper.parseObject(user, ResponseUserDTO.class);
+        ResponseUserDTO responseUserDTO = ModelMapperImpl.map(user, ResponseUserDTO.class);
         addHateoasLinks(responseUserDTO);
         return responseUserDTO;
     }

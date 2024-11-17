@@ -8,7 +8,7 @@ spring:
     # TODO: replace db setting with environment variables
     url: jdbc:postgresql://localhost:5432/Iservice
     username: postgres
-    password: 01092209
+    password: 14273119
   jpa:
     hibernate:
       ddl-auto: none
