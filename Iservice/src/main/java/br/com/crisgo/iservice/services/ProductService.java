@@ -2,12 +2,9 @@ package br.com.crisgo.iservice.services;
 
 import br.com.crisgo.iservice.DTO.request.RequestProductDTO;
 import br.com.crisgo.iservice.DTO.response.ResponseProductDTO;
-import br.com.crisgo.iservice.DTO.response.ResponseSellerDTO;
-import br.com.crisgo.iservice.DTO.response.ResponseUserDTO;
 import br.com.crisgo.iservice.controllers.ProductController;
-import br.com.crisgo.iservice.controllers.UserController;
 import br.com.crisgo.iservice.exceptions.EntityNotFoundException;
-import br.com.crisgo.iservice.mapper.DozerMapper;
+import br.com.crisgo.iservice.mapper.Mapper;
 import br.com.crisgo.iservice.models.Product;
 import br.com.crisgo.iservice.models.Seller;
 import br.com.crisgo.iservice.repositorys.ProductRepository;
@@ -15,7 +12,6 @@ import br.com.crisgo.iservice.repositorys.SellerRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -26,11 +22,12 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final SellerRepository sellerRepository;
-
+    private final Mapper mapper;
     @Autowired
-    public ProductService(ProductRepository productRepository, SellerRepository sellerRepository) {
+    public ProductService(ProductRepository productRepository, SellerRepository sellerRepository, Mapper mapper) {
         this.productRepository = productRepository;
         this.sellerRepository = sellerRepository;
+        this.mapper = mapper;
     }
 
     public ResponseProductDTO createProduct(RequestProductDTO requestProductDTO) {
@@ -39,12 +36,12 @@ public class ProductService {
                 .orElseThrow(() -> new EntityNotFoundException("Vendedor não encontrado"));
 
         // Map RequestProductDTO to Product, then set the Seller
-        Product product = DozerMapper.parseObject(requestProductDTO, Product.class);
+        Product product = mapper.map(requestProductDTO, Product.class);
         product.setSeller(seller);
 
         Product savedProduct = productRepository.save(product);
 
-        ResponseProductDTO responseProductDTO = DozerMapper.parseObject(savedProduct, ResponseProductDTO.class);
+        ResponseProductDTO responseProductDTO = mapper.map(savedProduct, ResponseProductDTO.class);
         addHateoasLinks(responseProductDTO);
         return responseProductDTO;
     }
@@ -58,7 +55,7 @@ public class ProductService {
         Product product = productRepository.findBySellerAndName(seller, name)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found with name: " + name));
 
-        ResponseProductDTO responseProductDTO = DozerMapper.parseObject(product, ResponseProductDTO.class);
+        ResponseProductDTO responseProductDTO = mapper.map(product, ResponseProductDTO.class);
         addHateoasLinks(responseProductDTO);
         return responseProductDTO;
     }
@@ -78,7 +75,7 @@ public class ProductService {
                 .orElseThrow(() -> new EntityNotFoundException("Produto de ID " + id + " não encontrado"));
 
         // Use Dozer to map the fields from productDetails onto the existing product
-        DozerMapper.mapOntoExistingObject(productDetails, existingProduct);
+        mapper.mapOntoExistingObject(productDetails, existingProduct);
 
         // Link the existing product to the correct seller if needed
         Seller seller = sellerRepository.findById(productDetails.getSellerId())
@@ -87,7 +84,7 @@ public class ProductService {
 
         // Save and return the updated product
         Product updatedProduct = productRepository.save(existingProduct);
-        ResponseProductDTO responseProductDTO = DozerMapper.parseObject(updatedProduct, ResponseProductDTO.class);
+        ResponseProductDTO responseProductDTO = mapper.map(updatedProduct, ResponseProductDTO.class);
         addHateoasLinks(responseProductDTO);
         return responseProductDTO;
     }

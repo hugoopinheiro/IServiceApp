@@ -3,7 +3,7 @@ package br.com.crisgo.iservice.services;
 import br.com.crisgo.iservice.DTO.request.RequestReviewsDTO;
 import br.com.crisgo.iservice.DTO.response.ResponseReviewsDTO;
 import br.com.crisgo.iservice.exceptions.EntityNotFoundException;
-import br.com.crisgo.iservice.mapper.DozerMapper;
+import br.com.crisgo.iservice.mapper.Mapper;
 import br.com.crisgo.iservice.models.Product;
 import br.com.crisgo.iservice.models.Reviews;
 import br.com.crisgo.iservice.models.User;
@@ -23,10 +23,12 @@ public class ReviewsService {
     private final ProductRepository productRepository;
     private final ReviewsRepository reviewsRepository;
     private final UserRepository userRepository;
+    private final Mapper mapper;
 
     @Autowired
-    public ReviewsService(ProductRepository productRepository, ReviewsRepository reviewsRepository, UserRepository userRepository) {
+    public ReviewsService(ProductRepository productRepository,Mapper mapper, ReviewsRepository reviewsRepository, UserRepository userRepository) {
         this.productRepository = productRepository;
+        this.mapper = mapper;
         this.reviewsRepository = reviewsRepository;
         this.userRepository = userRepository;
     }
@@ -39,12 +41,12 @@ public class ReviewsService {
                 .orElseThrow(() -> new EntityNotFoundException("Usuario não encontrado"));
 
         // Map RequestReviewsDTO to Reviews entity
-        Reviews reviews = DozerMapper.parseObject(requestReviewsDTO, Reviews.class);
+        Reviews reviews = mapper.map(requestReviewsDTO, Reviews.class);
         reviews.setProduct(product);
         reviews.setRequestUserDTO(user);
 
         Reviews savedReview = reviewsRepository.save(reviews);
-        return DozerMapper.parseObject(savedReview, ResponseReviewsDTO.class);
+        return mapper.map(savedReview, ResponseReviewsDTO.class);
     }
 
     public List<ResponseReviewsDTO> findByProduct(Long productId) {
@@ -59,7 +61,7 @@ public class ReviewsService {
         }
 
         return reviews.stream()
-                .map(review -> DozerMapper.parseObject(review, ResponseReviewsDTO.class))
+                .map(review -> mapper.map(review, ResponseReviewsDTO.class))
                 .collect(Collectors.toList());
     }
 
@@ -78,9 +80,9 @@ public class ReviewsService {
                 .orElseThrow(() -> new EntityNotFoundException("Review de ID " + id + " não encontrado"));
 
         // Map the updated fields from RequestReviewsDTO to the existing Reviews entity
-        DozerMapper.mapOntoExistingObject(requestReviewsDTO, existingReview);
+        mapper.mapOntoExistingObject(requestReviewsDTO, existingReview);
 
         Reviews updatedReview = reviewsRepository.save(existingReview);
-        return DozerMapper.parseObject(updatedReview, ResponseReviewsDTO.class);
+        return mapper.map(updatedReview, ResponseReviewsDTO.class);
     }
 }

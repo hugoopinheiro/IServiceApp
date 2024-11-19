@@ -3,15 +3,14 @@ package br.com.crisgo.iservice.services;
 import br.com.crisgo.iservice.DTO.request.RequestOrdersDTO;
 import br.com.crisgo.iservice.DTO.response.ResponseOrdersDTO;
 import br.com.crisgo.iservice.controllers.OrdersController;
-import br.com.crisgo.iservice.controllers.UserController;
 import br.com.crisgo.iservice.exceptions.EntityNotFoundException;
-import br.com.crisgo.iservice.mapper.DozerMapper;
 import br.com.crisgo.iservice.models.*;
 import br.com.crisgo.iservice.repositorys.OrdersRepository;
 import br.com.crisgo.iservice.repositorys.ProductRepository;
 import br.com.crisgo.iservice.repositorys.SellerRepository;
 import br.com.crisgo.iservice.repositorys.UserRepository;
 
+import br.com.crisgo.iservice.mapper.Mapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
@@ -30,16 +29,19 @@ public class OrdersService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final SellerRepository sellerRepository;
+    private final Mapper mapper;
 
     @Autowired
     public OrdersService(OrdersRepository ordersRepository,
                          UserRepository userRepository,
                          ProductRepository productRepository,
-                         SellerRepository sellerRepository) {
+                         SellerRepository sellerRepository,
+                         Mapper mapper) {
         this.ordersRepository = ordersRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
         this.sellerRepository = sellerRepository;
+        this.mapper = mapper;
     }
 
     public ResponseOrdersDTO createOrder(Long userId, Long productId, Long sellerId, RequestOrdersDTO requestOrdersDTO) {
@@ -50,13 +52,13 @@ public class OrdersService {
         Seller seller = sellerRepository.findById(sellerId)
                 .orElseThrow(() -> new EntityNotFoundException("Vendedor não encontrado"));
 
-        Orders orders = DozerMapper.parseObject(requestOrdersDTO, Orders.class);
+        Orders orders = mapper.map(requestOrdersDTO, Orders.class);
         orders.setUser(user);
         orders.setProduct(product);
         orders.setSeller(seller);
 
         Orders savedOrder = ordersRepository.save(orders);
-        return addHateoasLinks(DozerMapper.parseObject(savedOrder, ResponseOrdersDTO.class));
+        return addHateoasLinks(mapper.map(savedOrder, ResponseOrdersDTO.class));
     }
 
     public List<ResponseOrdersDTO> findByUser(Long userId) {
@@ -70,7 +72,7 @@ public class OrdersService {
         }
 
         return orders.stream()
-                .map(order -> addHateoasLinks(DozerMapper.parseObject(order, ResponseOrdersDTO.class)))
+                .map(order -> addHateoasLinks(mapper.map(order, ResponseOrdersDTO.class)))
                 .collect(Collectors.toList());
     }
 
@@ -87,10 +89,10 @@ public class OrdersService {
         Orders existingOrder = ordersRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Compra de ID " + id + " não encontrado"));
 
-        DozerMapper.mapOntoExistingObject(requestOrdersDTO, existingOrder);
+        mapper.mapOntoExistingObject(requestOrdersDTO, existingOrder);
 
         Orders updatedOrder = ordersRepository.save(existingOrder);
-        return addHateoasLinks(DozerMapper.parseObject(updatedOrder, ResponseOrdersDTO.class));
+        return addHateoasLinks(mapper.map(updatedOrder, ResponseOrdersDTO.class));
     }
 
     private ResponseOrdersDTO addHateoasLinks(ResponseOrdersDTO ordersDTO) {
