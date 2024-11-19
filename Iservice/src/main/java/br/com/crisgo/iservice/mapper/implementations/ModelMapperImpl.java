@@ -26,4 +26,10 @@ public class ModelMapperImpl implements Mapper {
         }
         return result;
     }
+    @Override
+    public <O, D> void mapOntoExistingObject(O source, D destination) {
+        MODEL_MAPPER.map(source, destination);
+    }
+
+
 }
