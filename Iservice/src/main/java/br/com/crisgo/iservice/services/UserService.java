@@ -11,20 +11,13 @@ import br.com.crisgo.iservice.repositorys.UserRepository;
 import br.com.crisgo.iservice.models.User;
 import com.github.dozermapper.core.Mapper;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
 import org.springframework.hateoas.Link;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @Service
 public class UserService {
 
-    @Autowired
     private final UserRepository userRepository;
     private final Mapper modelMapper;
 
