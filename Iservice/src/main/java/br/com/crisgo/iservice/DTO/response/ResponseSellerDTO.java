@@ -7,7 +7,7 @@ import org.springframework.hateoas.RepresentationModel;
 
 import java.time.LocalDateTime;
 
-@Data
+
 public class ResponseSellerDTO extends RepresentationModel<ResponseSellerDTO> {
 
     private Long id;

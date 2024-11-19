@@ -79,7 +79,8 @@ public class User implements UserDetails {
     }
     public ResponseUserDTO toResponseDTO () {
         ResponseUserDTO dto = new ResponseUserDTO();
-        dto.setId(this.user_id);
+        dto.setUser_id(
+                this.user_id);
         dto.setName(this.name);
         dto.setEmail(this.email);
         dto.setPhone(this.phone);
