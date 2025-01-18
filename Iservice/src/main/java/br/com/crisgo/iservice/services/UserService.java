@@ -5,6 +5,8 @@ import br.com.crisgo.iservice.controllers.UserController;
 import br.com.crisgo.iservice.exceptions.EntityNotFoundException;
 import br.com.crisgo.iservice.DTO.request.RequestUserDTO;
 import br.com.crisgo.iservice.mapper.Mapper;
+import br.com.crisgo.iservice.models.Address;
+import br.com.crisgo.iservice.repositorys.AddressRepository;
 import br.com.crisgo.iservice.repositorys.UserRepository;
 import br.com.crisgo.iservice.models.User;
 import jakarta.transaction.Transactional;
@@ -17,10 +19,12 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final Mapper modelMapper;
+    private final AddressRepository addressRepository;
     @Autowired
-    public UserService(UserRepository userRepository, Mapper modelMapper) {
+    public UserService(UserRepository userRepository, Mapper modelMapper, AddressRepository addressRepository) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
+        this.addressRepository = addressRepository;
     }
 
     public ResponseUserDTO findById(Long id) {
@@ -38,13 +42,31 @@ public class UserService {
         }
         userRepository.deleteById(id);
     }
-
+    @Transactional
     public ResponseUserDTO save(RequestUserDTO requestUserDTO) {
-        User user = modelMapper.map(requestUserDTO, User.class);;
+        // Step 1: Create and save the Address
+        Address address = new Address();
+        address.setStreet(requestUserDTO.getStreet());
+        address.setCep(requestUserDTO.getCep());
+        address.setState(requestUserDTO.getState());
+        address.setHouseNumber(requestUserDTO.getHouseNumber());
+
+        Address savedAddress = addressRepository.save(address);
+
+        // Step 2: Create the User and attach the Address
+        User user = new User();
+        user.setName(requestUserDTO.getName());
+        user.setUserName(requestUserDTO.getUserName());
+        user.setEmail(requestUserDTO.getEmail());
+        user.setPassword(requestUserDTO.getPassword());
+        user.setContact(requestUserDTO.getContact());
+        user.setAddress(savedAddress); // Link the saved Address
+
+        // Step 3: Save the User
         User savedUser = userRepository.save(user);
-        ResponseUserDTO responseUserDTO = modelMapper.map(savedUser, ResponseUserDTO.class);
-        addHateoasLinks(responseUserDTO);
-        return responseUserDTO;
+
+        // Step 4: Map and return the response
+        return modelMapper.map(savedUser, ResponseUserDTO.class);
     }
 
     @Transactional
@@ -53,7 +75,7 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("Usuario de ID " + id + " não encontrado"));
         user.setName(requestUserDTODetails.getName());
         user.setEmail(requestUserDTODetails.getEmail());
-        user.setPhone(requestUserDTODetails.getPhone());
+        user.setContact(requestUserDTODetails.getContact());
         user.setPassword(requestUserDTODetails.getPassword());
 
         User updatedUser = userRepository.save(user);

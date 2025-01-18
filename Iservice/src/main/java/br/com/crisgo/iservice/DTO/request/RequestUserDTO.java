@@ -21,5 +21,13 @@ public class RequestUserDTO {
     private String password;
 
     @NotBlank(message = "Phone is mandatory")
-    private String phone;
+    private String contact;
+    // Address Fields
+    private String street;
+    private String cep;
+    private String complement;
+    private String state;
+    private String houseNumber;
+
+    private RequestAddressDTO address;  // Nested DTO for address
 }

@@ -2,7 +2,12 @@ package br.com.crisgo.iservice.controllers;
 
 import br.com.crisgo.iservice.DTO.response.ResponseUserDTO;
 import br.com.crisgo.iservice.DTO.request.RequestUserDTO;
+import br.com.crisgo.iservice.config.SecurityConfig;
 import br.com.crisgo.iservice.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,12 +18,18 @@ import org.springframework.hateoas.EntityModel;
 
 @RestController
 @RequestMapping(value = "/user", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+@Tag(name = "usuario", description = "Controlador para salvar operações e editar dados do usuario")
+@SecurityRequirement(name = SecurityConfig.SECURITY)
 public class UserController {
 
     @Autowired
     private UserService userService;
 
     @GetMapping(value = "/{id}", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+    @Operation(summary = "Busca dados de um usuario especifico", description = "Metodo para busca dados de um usuario")
+    @ApiResponse(responseCode = "200", description = "usuario encontrado com sucesso")
+    @ApiResponse(responseCode = "400", description = "usuario nao existe")
+    @ApiResponse(responseCode = "500", description = "Erro no servidor")
     public ResponseEntity<EntityModel<ResponseUserDTO>> getUser(@PathVariable Long id) {
         ResponseUserDTO userDTO = userService.findById(id);
         EntityModel<ResponseUserDTO> resource = EntityModel.of(userDTO);
