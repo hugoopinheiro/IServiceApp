@@ -1,4 +1,4 @@
 INSERT INTO permission (description) VALUES
     ('ADMIN'),
-    ('MANAGER'),
+    ('SELLER'),
     ('COMMON_USER');
