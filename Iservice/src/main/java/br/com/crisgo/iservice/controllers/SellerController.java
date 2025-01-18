@@ -2,6 +2,7 @@ package br.com.crisgo.iservice.controllers;
 
 import br.com.crisgo.iservice.DTO.request.RequestSellerDTO;
 import br.com.crisgo.iservice.DTO.response.ResponseSellerDTO;
+import br.com.crisgo.iservice.repositorys.UserRepository;
 import br.com.crisgo.iservice.services.SellerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 @RestController
-@RequestMapping("/seller")
+@RequestMapping("api/v1/seller")
 @Validated
 public class SellerController {
 
@@ -22,9 +23,10 @@ public class SellerController {
     }
 
     // Replace @RequestBody Seller with @RequestBody RequestSellerDTO in endpoints
-    @PostMapping
-    public ResponseEntity<ResponseSellerDTO> registerSeller(@RequestBody @Validated RequestSellerDTO requestSellerDTO) {
-        ResponseSellerDTO responseSellerDTO = sellerService.createSeller(requestSellerDTO);
+    @PostMapping("/{userId}")
+    public ResponseEntity<ResponseSellerDTO> registerSeller(@RequestBody @Validated RequestSellerDTO requestSellerDTO,
+                                                            @PathVariable Long userId) {
+        ResponseSellerDTO responseSellerDTO = sellerService.createSeller(requestSellerDTO, userId);
         return ResponseEntity.ok(responseSellerDTO);
     }
 

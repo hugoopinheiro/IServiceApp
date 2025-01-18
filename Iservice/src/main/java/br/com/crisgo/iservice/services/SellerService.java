@@ -1,11 +1,16 @@
 package br.com.crisgo.iservice.services;
 
 import br.com.crisgo.iservice.DTO.request.RequestSellerDTO;
+import br.com.crisgo.iservice.DTO.response.ResponseAddressDTO;
+import br.com.crisgo.iservice.DTO.response.ResponseReviewsDTO;
 import br.com.crisgo.iservice.DTO.response.ResponseSellerDTO;
+import br.com.crisgo.iservice.DTO.response.ResponseUserDTO;
 import br.com.crisgo.iservice.controllers.SellerController;
 import br.com.crisgo.iservice.exceptions.EntityNotFoundException;
-import br.com.crisgo.iservice.models.Seller;
+import br.com.crisgo.iservice.models.*;
+import br.com.crisgo.iservice.repositorys.BankAccountRepository;
 import br.com.crisgo.iservice.repositorys.SellerRepository;
+import br.com.crisgo.iservice.repositorys.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
@@ -22,10 +27,14 @@ public class SellerService {
 
     private final SellerRepository sellerRepository;
     private final Mapper modelMapper;
+    private final UserRepository userRepository;
+    private final BankAccountRepository bankAccountRepository;
     @Autowired
-    public SellerService(SellerRepository sellerRepository, Mapper modelMapper) {
+    public SellerService(SellerRepository sellerRepository, Mapper modelMapper, UserRepository userRepository, BankAccountRepository bankAccountRepository) {
         this.sellerRepository = sellerRepository;
         this.modelMapper = modelMapper;
+        this.userRepository = userRepository;
+        this.bankAccountRepository = bankAccountRepository;
     }
 
     public List<ResponseSellerDTO> findAll() {
@@ -40,16 +49,49 @@ public class SellerService {
         addHateoasLinks(responseSellerDTO);
         return responseSellerDTO;
     }
+    @Transactional
+    public ResponseSellerDTO createSeller(RequestSellerDTO requestSellerDTO, Long userId) {
+        // Step 1: Create and save BankAccount
+        BankAccount bankAccount = new BankAccount();
+        bankAccount.setNumberAccount(requestSellerDTO.getNumberAccount());
+        bankAccount.setAgency(requestSellerDTO.getAgency());
+        BankAccount savedBankAccount = bankAccountRepository.save(bankAccount);
 
-    public ResponseSellerDTO createSeller(RequestSellerDTO requestSellerDTO) {
-        // Map RequestSellerDTO to Seller entity
+        if (savedBankAccount.getBankAccountId() == null) {
+            throw new RuntimeException("Failed to save BankAccount");
+        }
+
+        // Step 2: Fetch the existing User
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario não encontrado"));
+
+        // Step 3: Create the Seller and associate the BankAccount and User
         Seller seller = modelMapper.map(requestSellerDTO, Seller.class);
+        seller.setBankAccount(savedBankAccount);
+        seller.setUser(user); // No need to save the User again
         Seller savedSeller = sellerRepository.save(seller);
-        // Map saved Seller entity to ResponseSellerDTO
-        ResponseSellerDTO responseSellerDTO = modelMapper.map(seller, ResponseSellerDTO.class);
-        addHateoasLinks(responseSellerDTO);
+
+        // Step 4: Create the Response DTO
+        ResponseSellerDTO responseSellerDTO = new ResponseSellerDTO();
+        responseSellerDTO.setId(savedSeller.getId());
+        responseSellerDTO.setName(user.getName());
+        responseSellerDTO.setEmail(user.getEmail());
+        responseSellerDTO.setPhone(user.getContact());
+        responseSellerDTO.setSellerDescription(savedSeller.getSellerDescription());
+        responseSellerDTO.setCreatedAt(savedSeller.getCreatedAt());
+
+        // Check if Address and User are already associated and mapped
+        if (user.getAddress() != null) {
+            ResponseAddressDTO responseAddressDTO = modelMapper.map(user.getAddress(), ResponseAddressDTO.class);
+            responseSellerDTO.setResponseAddressDTO(responseAddressDTO);
+        }
+
+        ResponseUserDTO responseUserDTO = modelMapper.map(user, ResponseUserDTO.class);
+        responseSellerDTO.setResponseUserDTO(responseUserDTO);
+
         return responseSellerDTO;
     }
+
 
     @Transactional
     public ResponseSellerDTO updateSeller(Long id, RequestSellerDTO requestSellerDTO) {

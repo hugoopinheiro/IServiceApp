@@ -20,59 +20,27 @@ public class Seller {
     @Column(name = "seller_id")
     private Long sellerId;
 
-    @Column(name = "name", nullable = false)
-    private String name;
+    @Column(name = "cpf", nullable = false)
+    private String cpf;
 
-    @Column(name = "email", nullable = false, unique = true)
-    private String email;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "bank_account_id", referencedColumnName = "bank_account_id") // coluna in the table seller
+    private BankAccount bankAccount;
 
-    @Column(name = "password", nullable = false)
-    private String password;
-
-    @Column(name = "phone", nullable = false)
-    private String phone;
-
-    @OneToOne(cascade = CascadeType.ALL)  // Cascade all operations to Address
-    @JoinColumn(name = "address_id", referencedColumnName = "address_id")
-    private Address address;
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    private User user;
 
     @Column(name = "description", nullable = false)
     private String sellerDescription;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public Seller(RequestSellerDTO requestSellerDTO) {
-        this.name = requestSellerDTO.getName();
-        this.email = requestSellerDTO.getEmail();
-        this.password = requestSellerDTO.getPassword();
-        this.phone = requestSellerDTO.getPhone();
-        this.sellerDescription = requestSellerDTO.getSellerDescription();
-
-        // Map AddressDTO to Address entity if provided
-        if (requestSellerDTO.getAddress() != null) {
-            this.address = new Address();
-            this.address.setStreet(requestSellerDTO.getAddress().getStreet());
-            this.address.setCep(requestSellerDTO.getAddress().getCep());
-            this.address.setComplement(requestSellerDTO.getAddress().getComplement());
-            this.address.setState(requestSellerDTO.getAddress().getState());
-            this.address.setHouseNumber(requestSellerDTO.getAddress().getHouseNumber());
-        }
+    public Long getId() {
+        return this.sellerId;
     }
-
-
-    public ResponseSellerDTO toResponseDTO() {
-        ResponseSellerDTO dto = new ResponseSellerDTO();
-        dto.setId(this.sellerId);
-        dto.setName(this.name);
-        dto.setEmail(this.email);
-        dto.setPhone(this.phone);
-        dto.setSellerDescription(this.sellerDescription);
-        dto.setCreatedAt(this.createdAt);
-        return dto;
-    }
-
-
-    public Long getId() {return this.sellerId;}
 }
+
+
