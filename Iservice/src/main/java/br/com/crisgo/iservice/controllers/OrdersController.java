@@ -3,7 +3,6 @@ package br.com.crisgo.iservice.controllers;
 import br.com.crisgo.iservice.DTO.request.RequestOrdersDTO;
 import br.com.crisgo.iservice.DTO.response.ResponseOrdersDTO;
 import br.com.crisgo.iservice.services.OrdersService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;

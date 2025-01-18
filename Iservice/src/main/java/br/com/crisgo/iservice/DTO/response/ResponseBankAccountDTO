@@ -10,5 +10,4 @@ public class ResponseBankAccountDTO {
     private Long id;
     private String numberAccount;
     private String agency;
-    private Seller seller;
 }

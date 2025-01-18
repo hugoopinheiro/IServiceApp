@@ -9,7 +9,7 @@ import lombok.Data;
 public class RequestBankAccountDTO {
 
     @NotBlank(message = "Numero da conta é obrigatorio")
-    private String name;
+    private String numberAccount;
 
     @NotBlank(message = "Agência é obrigatorio")
     private String agency;

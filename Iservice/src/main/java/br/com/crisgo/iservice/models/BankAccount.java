@@ -1,14 +1,13 @@
 package br.com.crisgo.iservice.models;
 
-import br.com.crisgo.iservice.models.Seller;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@Entity(name = "bankAccount")
-@Table(name = "bankAccount")
+@Entity
+@Table(name = "bank_account")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,7 +16,7 @@ public class BankAccount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "bankAccount_id")
+    @Column(name = "bank_account_id")
     private Long bankAccountId;
 
     @Column(name = "number_account")
@@ -26,8 +25,7 @@ public class BankAccount {
     @Column(name = "agency")
     private String agency;
 
-    @ManyToOne // One seller can have many bank accounts
-    @JoinColumn(name = "seller_id")
+    @OneToOne(mappedBy = "bankAccount")
     private Seller seller;
 }
 

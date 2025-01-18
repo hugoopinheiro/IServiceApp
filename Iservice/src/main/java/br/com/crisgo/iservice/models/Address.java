@@ -5,34 +5,37 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "address")
 @Data
 @AllArgsConstructor
-@EqualsAndHashCode(of = "addressId")  // Uses Java camel case style
+@NoArgsConstructor
 public class Address {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "address_id")
-    private Long addressId;  // Updated to camel case
+    private Long addressId;
 
-    @Column(nullable = false)
-    private String cep;
+    @OneToOne(mappedBy = "address")
+    private User user;
 
-    @Column(nullable = false)
-    private String complement;
-
-    @Column(nullable = false, name = "house_number")
-    private String houseNumber;
-
-    @Column(nullable = false)
+    @Column(name = "street")
     private String street;
 
-    @Column(nullable = false)
+    @Column(name = "cep")
+    private String cep;
+
+    @Column(name = "complement")
+    private String complement;
+
+    @Column(name = "state")
     private String state;
-    public Address() {}
+
+    @Column(name = "house_number")
+    private String houseNumber;
 
     public Address(RequestAddressDTO dto) {
         this.cep = dto.getCep();
@@ -42,3 +45,4 @@ public class Address {
         this.state = dto.getState();
     }
 }
+
