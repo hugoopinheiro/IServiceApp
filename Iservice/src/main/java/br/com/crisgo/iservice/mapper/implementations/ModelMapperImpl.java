@@ -13,6 +13,12 @@ import java.util.List;
 public class ModelMapperImpl implements Mapper {
     private static final ModelMapper MODEL_MAPPER = new ModelMapper();
 
+    public ModelMapperImpl() {
+        MODEL_MAPPER.getConfiguration()
+                .setFieldMatchingEnabled(true) // Ensure fields match
+                .setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE); // Map private fields
+    }
+
     @Override
     public <O, D> D map(O object, Class<D> destiny) {
         return MODEL_MAPPER.map(object, destiny);
