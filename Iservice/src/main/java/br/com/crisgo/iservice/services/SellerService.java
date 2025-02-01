@@ -75,7 +75,6 @@ public class SellerService {
         ResponseSellerDTO responseSellerDTO = new ResponseSellerDTO();
         responseSellerDTO.setId(savedSeller.getId());
         responseSellerDTO.setName(user.getName());
-        responseSellerDTO.setEmail(user.getEmail());
         responseSellerDTO.setPhone(user.getContact());
         responseSellerDTO.setSellerDescription(savedSeller.getSellerDescription());
         responseSellerDTO.setCreatedAt(savedSeller.getCreatedAt());

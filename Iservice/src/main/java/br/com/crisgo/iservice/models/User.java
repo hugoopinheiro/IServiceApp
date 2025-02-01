@@ -3,13 +3,10 @@ package br.com.crisgo.iservice.models;
 import br.com.crisgo.iservice.DTO.request.RequestUserDTO;
 import br.com.crisgo.iservice.DTO.response.ResponseUserDTO;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Cascade;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
@@ -23,25 +20,26 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(of = "userId")
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+@ToString(exclude = "address")
+public class User implements UserDetails{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name")
     private String name;
 
-    @Column(name = "user_name", nullable = false)
+    @Column(name = "user_name")
     private String userName;
 
-    @Column(name = "email", nullable = false)
-    private String email;
+    @Column(name = "email")
+    private String login;
 
-    @Column(name = "password", nullable = false)
+    @Column(name = "password")
     private String password;
 
-    @Column(name = "contact", nullable = false)
+    @Column(name = "contact")
     private String contact;
 
     @OneToOne(mappedBy = "user")
@@ -51,77 +49,57 @@ public class User {
     @JoinColumn(name = "address_id", referencedColumnName = "address_id")
     private Address address;
 
-//    @Enumerated(EnumType.STRING)
-//    private Role role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
-    @Column(name = "active", nullable = false)
+    @Column(name = "active")
     private Boolean active = true;
 
-//    private List<Permission> permissions;
+    private List<Permission> permissions;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
-
-//    public User(RequestUserDTO requestUserDTO) {
-//        this.name = requestUserDTO.getName();
-//        this.userName = requestUserDTO.getUserName();
-//        this.email = requestUserDTO.getEmail();
-//        this.password = requestUserDTO.getPassword();
-//        this.contact = requestUserDTO.getContact();
-//
-//        // Map AddressDTO to Address entity if provided
-//        if (requestUserDTO.getAddress() != null) {
-//            this.address = new Address();
-//            this.address.setStreet(requestUserDTO.getAddress().getStreet());
-//            this.address.setCep(requestUserDTO.getAddress().getCep());
-//            this.address.setComplement(requestUserDTO.getAddress().getComplement());
-//            this.address.setState(requestUserDTO.getAddress().getState());
-//            this.address.setHouseNumber(requestUserDTO.getAddress().getHouseNumber());
-//        }
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        if(this.role == Role.ADMIN) return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        if(this.role == Role.SELLER) return List.of(new  SimpleGrantedAuthority("ROLE_SELLER"));
+        else return List.of(new SimpleGrantedAuthority("ROLE_COMMON_USER"));
     }
-//    public ResponseUserDTO toResponseDTO() {
-//        ResponseUserDTO dto = new ResponseUserDTO();
-//        dto.setUser_id(this.userId);
-//        dto.setName(this.name);
-//        dto.setEmail(this.email);
-//        dto.setPhone(this.phone);
-//        dto.setCreatedAt(this.createdAt);
-//        return dto;
-//    }
 
-//    public List<String> getRoles() {
-//        return permissions.stream()
-//                .map(Permission::getDescription)
-//                .collect(Collectors.toList());
-//    }
-//
-//    @Override
-//    public Collection<? extends GrantedAuthority> getAuthorities() {
-//        return this.permissions;
-//    }
-//
-//    @Override
-//    public String getUsername() {
-//        return this.userName;
-//    }
-//
-//    @Override
-//    public boolean isAccountNonExpired() {
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean isAccountNonLocked() {
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean isCredentialsNonExpired() {
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean isEnabled() {
-//        return true;
-//    }
+    public List<String> getRoles() {
+        return permissions.stream()
+                .map(Permission::getDescription)
+                .collect(Collectors.toList());
+    }
+    public User(String login, String password, Role role){
+        this.login = login;
+        this.password = password;
+        this.role = role;
+    }
+    @Override
+    public String getUsername() {
+        return this.login; // Use the login field for authentication
+    }
+
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+}

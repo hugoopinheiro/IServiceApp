@@ -15,7 +15,7 @@ public class RequestUserDTO {
 
     @NotBlank(message = "Email is mandatory")
     @Email
-    private String email;
+    private String login;
 
     @NotBlank(message = "Password is mandatory")
     private String password;
@@ -29,5 +29,5 @@ public class RequestUserDTO {
     private String state;
     private String houseNumber;
 
-    private RequestAddressDTO address;  // Nested DTO for address
+    private RequestAddressDTO address;  // Nested DTO for addre
 }

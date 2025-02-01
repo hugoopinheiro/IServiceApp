@@ -2,16 +2,14 @@ package br.com.crisgo.iservice.models;
 
 import br.com.crisgo.iservice.DTO.request.RequestAddressDTO;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "address")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(exclude = "user")
 public class Address {
 
     @Id

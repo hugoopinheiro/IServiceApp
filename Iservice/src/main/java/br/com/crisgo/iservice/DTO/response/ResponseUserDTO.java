@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public class ResponseUserDTO extends RepresentationModel<ResponseUserDTO> {
     private Long user_id;
     private String name;
-    private String email;
+    private String login;
     private String contact;
     private LocalDateTime createdAt;
     private ResponseAddressDTO responseAddressDTO;
