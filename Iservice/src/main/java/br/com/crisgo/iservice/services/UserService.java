@@ -1,30 +1,54 @@
 package br.com.crisgo.iservice.services;
 
+import br.com.crisgo.iservice.DTO.request.RegisterDTO;
+import br.com.crisgo.iservice.DTO.request.RequestSellerDTO;
+import br.com.crisgo.iservice.DTO.response.ResponseProductDTO;
+import br.com.crisgo.iservice.DTO.response.ResponseReviewsDTO;
+import br.com.crisgo.iservice.DTO.response.ResponseSellerDTO;
 import br.com.crisgo.iservice.DTO.response.ResponseUserDTO;
+import br.com.crisgo.iservice.controllers.AuthenticationController;
 import br.com.crisgo.iservice.controllers.UserController;
 import br.com.crisgo.iservice.exceptions.EntityNotFoundException;
 import br.com.crisgo.iservice.DTO.request.RequestUserDTO;
+import br.com.crisgo.iservice.infra.TokenService;
 import br.com.crisgo.iservice.mapper.Mapper;
-import br.com.crisgo.iservice.models.Address;
+import br.com.crisgo.iservice.models.*;
 import br.com.crisgo.iservice.repositorys.AddressRepository;
+import br.com.crisgo.iservice.repositorys.SellerRepository;
 import br.com.crisgo.iservice.repositorys.UserRepository;
-import br.com.crisgo.iservice.models.User;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.hateoas.Link;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 @Service
 public class UserService {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
     private final UserRepository userRepository;
     private final Mapper modelMapper;
     private final AddressRepository addressRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final TokenService tokenService;
+    private final SellerRepository sellerRepository;
     @Autowired
-    public UserService(UserRepository userRepository, Mapper modelMapper, AddressRepository addressRepository) {
+    public UserService(
+            UserRepository userRepository,
+            Mapper modelMapper,
+            AddressRepository addressRepository,
+            PasswordEncoder passwordEncoder,
+            TokenService tokenService,
+            SellerRepository sellerRepository)
+    {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
         this.addressRepository = addressRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.tokenService = tokenService;
+        this.sellerRepository = sellerRepository;
     }
 
     public ResponseUserDTO findById(Long id) {
@@ -43,30 +67,28 @@ public class UserService {
         userRepository.deleteById(id);
     }
     @Transactional
-    public ResponseUserDTO save(RequestUserDTO requestUserDTO) {
+    public RegisterDTO register(RegisterDTO registerDTO) {
         // Step 1: Create and save the Address
         Address address = new Address();
-        address.setStreet(requestUserDTO.getStreet());
-        address.setCep(requestUserDTO.getCep());
-        address.setState(requestUserDTO.getState());
-        address.setHouseNumber(requestUserDTO.getHouseNumber());
+        address.setStreet(registerDTO.street());
+        address.setCep(registerDTO.cep());
+        address.setComplement(registerDTO.complement());
+        address.setState(registerDTO.state());
+        address.setHouseNumber(registerDTO.houseNumber());
 
         Address savedAddress = addressRepository.save(address);
 
-        // Step 2: Create the User and attach the Address
-        User user = new User();
-        user.setName(requestUserDTO.getName());
-        user.setUserName(requestUserDTO.getUserName());
-        user.setEmail(requestUserDTO.getEmail());
-        user.setPassword(requestUserDTO.getPassword());
-        user.setContact(requestUserDTO.getContact());
-        user.setAddress(savedAddress); // Link the saved Address
+        // Convert Register DTO to User Entity using ModelMapper
+        User user = modelMapper.map(registerDTO, User.class);
 
-        // Step 3: Save the User
-        User savedUser = userRepository.save(user);
+        user.setAddress(savedAddress);
 
-        // Step 4: Map and return the response
-        return modelMapper.map(savedUser, ResponseUserDTO.class);
+        user.setPassword(passwordEncoder.encode(registerDTO.password())); // Encrypt password before saving
+
+        userRepository.save(user);
+
+        logger.info("User '{}' registered successfully", registerDTO.login());
+        return registerDTO;
     }
 
     @Transactional
@@ -74,7 +96,7 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario de ID " + id + " não encontrado"));
         user.setName(requestUserDTODetails.getName());
-        user.setEmail(requestUserDTODetails.getEmail());
+        user.setLogin(requestUserDTODetails.getLogin());
         user.setContact(requestUserDTODetails.getContact());
         user.setPassword(requestUserDTODetails.getPassword());
 
@@ -93,6 +115,33 @@ public class UserService {
         userDTO.add(updateLink);
         userDTO.add(deleteLink);
     }
+
+    @Transactional
+    public ResponseUserDTO createSeller(Long userId, RequestSellerDTO requestSellerDTO) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario não encontrado"));
+
+        // ✅ Ensure the user is not already a seller
+        if (user.getRole().equals(Role.SELLER)) {
+            throw new IllegalStateException("Usuário já é um vendedor.");
+        }
+
+        logger.info("esse é o user '{}'", user);
+
+        // ✅ Map RequestSellerDTO to Seller and associate with User
+        Seller seller = modelMapper.map(requestSellerDTO, Seller.class);
+        seller.setUser(user);
+        sellerRepository.save(seller);
+
+        // ✅ Upgrade user role to SELLER
+        user.setRole(Role.SELLER);
+        userRepository.save(user);
+
+        return modelMapper.map(seller, ResponseSellerDTO.class).getResponseUserDTO();
+    }
+
+
+
 
 //    @Override
 //    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
