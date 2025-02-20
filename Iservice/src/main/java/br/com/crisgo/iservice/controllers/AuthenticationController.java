@@ -34,6 +34,15 @@ public class AuthenticationController {
     private final UserService userService;
     private final TokenService tokenService;
 
+    @GetMapping("/message")
+    public String getMessage() {
+        return "Hello from Spring Boot!";
+    }
+
+    @PostMapping("/send")
+    public String receiveData(@RequestBody String data) {
+        return "Received: " + data;
+    }
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid AuthenticationDTO data) {
         try {
