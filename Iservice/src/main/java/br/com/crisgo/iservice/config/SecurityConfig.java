@@ -33,11 +33,41 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
+
+                        //AUTH
+                        .requestMatchers(HttpMethod.GET, "/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
+
+                        //USERS
+                        .requestMatchers(HttpMethod.GET, "/api/v1/user/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/user/**").hasAnyRole("ADMIN", "COMMON_USER")
-                        .requestMatchers(HttpMethod.POST, "/product").hasAnyRole("ADMIN", "SELLER")
-                        .anyRequest().authenticated()
+                        .requestMatchers(HttpMethod.PUT, "api/v1/user/**").hasAnyRole("ADMIN", "COMMON_USER", "SELLER")
+                        .requestMatchers(HttpMethod.DELETE, "api/v1/user/**").hasAnyRole("ADMIN", "COMMON_USER", "SELLER")
+
+                        //REVIEWS
+                        .requestMatchers(HttpMethod.POST, "api/v1/reviews/**").hasAnyRole("ADMIN", "COMMON_USER", "SELLER")
+
+                        //SELLER
+                        .requestMatchers(HttpMethod.POST, "api/v1/seller/**").hasAnyRole("ADMIN", "COMMON_USER")
+                        .requestMatchers(HttpMethod.GET, "api/v1/seller/**").hasAnyRole("ADMIN", "SELLER")
+                        .requestMatchers(HttpMethod.DELETE, "api/v1/seller/**").hasAnyRole("ADMIN", "COMMON_USER", "SELLER")
+
+                        //ORDERS
+                        .requestMatchers(HttpMethod.POST, "api/v1/orders/**").hasAnyRole("ADMIN", "COMMON_USER", "SELLER")
+
+                        //ADDRESS
+                        .requestMatchers(HttpMethod.GET, "api/v1/address/**").hasAnyRole("ADMIN", "COMMON_USER", "SELLER")
+
+                        //PRODUCT
+                        .requestMatchers(HttpMethod.POST, "/api/v1/product/**").hasAnyRole("ADMIN", "SELLER")
+
+                        // swagger
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/swagger-ui.html").permitAll()
+
+                        .anyRequest().hasAnyRole("ADMIN", "COMMON_USER", "SELLER")
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .userDetailsService(authorizationService)
