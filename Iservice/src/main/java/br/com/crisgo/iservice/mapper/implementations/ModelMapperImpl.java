@@ -1,5 +1,8 @@
 package br.com.crisgo.iservice.mapper.implementations;
 
+import br.com.crisgo.iservice.DTO.response.ResponseAddressDTO;
+import br.com.crisgo.iservice.DTO.response.ResponseUserDTO;
+import br.com.crisgo.iservice.models.User;
 import br.com.crisgo.iservice.mapper.Mapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Primary;
@@ -17,6 +20,10 @@ public class ModelMapperImpl implements Mapper {
         MODEL_MAPPER.getConfiguration()
                 .setFieldMatchingEnabled(true) // Ensure fields match
                 .setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE); // Map private fields
+
+        // ✅ Explicitly map Address -> ResponseAddressDTO
+        MODEL_MAPPER.typeMap(User.class, ResponseUserDTO.class)
+                .addMappings(mapper -> mapper.map(User::getAddress, ResponseUserDTO::setResponseAddressDTO));
     }
 
     @Override
@@ -32,10 +39,9 @@ public class ModelMapperImpl implements Mapper {
         }
         return result;
     }
+
     @Override
     public <O, D> void mapOntoExistingObject(O source, D destination) {
         MODEL_MAPPER.map(source, destination);
     }
-
-
 }
