@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(of = "userId")
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @ToString(exclude = "address")
 public class User implements UserDetails{
     @Id
@@ -77,11 +78,11 @@ public class User implements UserDetails{
         this.password = password;
         this.role = role;
     }
+
     @Override
     public String getUsername() {
-        return this.login; // Use the login field for authentication
+        return this.userName; // Use the login field for authentication
     }
-
 
     @Override
     public boolean isAccountNonExpired() {

@@ -30,9 +30,9 @@ public class ProductService {
         this.mapper = mapper;
     }
 
-    public ResponseProductDTO createProduct(RequestProductDTO requestProductDTO) {
+    public ResponseProductDTO createProduct(RequestProductDTO requestProductDTO, Long sellerId) {
         // Fetch the seller
-        Seller seller = sellerRepository.findById(requestProductDTO.getSellerId())
+        Seller seller = sellerRepository.findById(sellerId)
                 .orElseThrow(() -> new EntityNotFoundException("Vendedor não encontrado"));
 
         // Map RequestProductDTO to Product, then set the Seller
@@ -68,34 +68,34 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
-    @Transactional
-    public ResponseProductDTO updateProduct(Long id, RequestProductDTO productDetails) {
-        // Fetch existing Product
-        Product existingProduct = productRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Produto de ID " + id + " não encontrado"));
-
-        // Use Dozer to map the fields from productDetails onto the existing product
-        mapper.mapOntoExistingObject(productDetails, existingProduct);
-
-        // Link the existing product to the correct seller if needed
-        Seller seller = sellerRepository.findById(productDetails.getSellerId())
-                .orElseThrow(() -> new EntityNotFoundException("Vendedor não encontrado"));
-        existingProduct.setSeller(seller);
-
-        // Save and return the updated product
-        Product updatedProduct = productRepository.save(existingProduct);
-        ResponseProductDTO responseProductDTO = mapper.map(updatedProduct, ResponseProductDTO.class);
-        addHateoasLinks(responseProductDTO);
-        return responseProductDTO;
-    }
+//    @Transactional
+//    public ResponseProductDTO updateProduct(Long id, RequestProductDTO productDetails) {
+//        // Fetch existing Product
+//        Product existingProduct = productRepository.findById(id)
+//                .orElseThrow(() -> new EntityNotFoundException("Produto de ID " + id + " não encontrado"));
+//
+//        // Use Dozer to map the fields from productDetails onto the existing product
+//        mapper.mapOntoExistingObject(productDetails, existingProduct);
+//
+//        // Link the existing product to the correct seller if needed
+//        Seller seller = sellerRepository.findById(productDetails.getSellerId())
+//                .orElseThrow(() -> new EntityNotFoundException("Vendedor não encontrado"));
+//        existingProduct.setSeller(seller);
+//
+//        // Save and return the updated product
+//        Product updatedProduct = productRepository.save(existingProduct);
+//        ResponseProductDTO responseProductDTO = mapper.map(updatedProduct, ResponseProductDTO.class);
+//        addHateoasLinks(responseProductDTO);
+//        return responseProductDTO;
+//    }
 
     private void addHateoasLinks(ResponseProductDTO productDTO) {
         //Link selfLink = linkTo(methodOn(ProductController.class).getProductBySellerAndName(productDTO.getId())).withSelfRel();
-        Link updateLink = linkTo(methodOn(ProductController.class).updateProduct(productDTO.getProductId(), null)).withRel("update");
+//        Link updateLink = linkTo(methodOn(ProductController.class).updateProduct(productDTO.getProductId(), null)).withRel("update");
         Link deleteLink = linkTo(methodOn(ProductController.class).deleteProduct(productDTO.getProductId())).withRel("delete");
 
         //productDTO.add(selfLink);
-        productDTO.add(updateLink);
+//        productDTO.add(updateLink);
         productDTO.add(deleteLink);
     }
 }
