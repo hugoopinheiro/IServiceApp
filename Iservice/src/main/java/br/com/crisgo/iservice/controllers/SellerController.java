@@ -2,7 +2,7 @@ package br.com.crisgo.iservice.controllers;
 
 import br.com.crisgo.iservice.DTO.request.RequestSellerDTO;
 import br.com.crisgo.iservice.DTO.response.ResponseSellerDTO;
-import br.com.crisgo.iservice.repositorys.UserRepository;
+import br.com.crisgo.iservice.DTO.response.ResponseUserDTO;
 import br.com.crisgo.iservice.services.SellerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +22,11 @@ public class SellerController {
         this.sellerService = sellerService;
     }
 
-    // Replace @RequestBody Seller with @RequestBody RequestSellerDTO in endpoints
     @PostMapping("/{userId}")
-    public ResponseEntity<ResponseSellerDTO> registerSeller(@RequestBody @Validated RequestSellerDTO requestSellerDTO,
-                                                            @PathVariable Long userId) {
-        ResponseSellerDTO responseSellerDTO = sellerService.createSeller(requestSellerDTO, userId);
-        return ResponseEntity.ok(responseSellerDTO);
+    public ResponseEntity<ResponseUserDTO> createSeller(@RequestBody @Validated RequestSellerDTO requestSellerDTO,
+                                                          @PathVariable Long userId) {
+        ResponseUserDTO responseUserDTO = sellerService.createSeller(userId, requestSellerDTO);
+        return ResponseEntity.ok(responseUserDTO);
     }
 
     @PutMapping("/{id}")

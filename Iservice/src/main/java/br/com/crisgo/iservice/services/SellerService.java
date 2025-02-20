@@ -1,14 +1,11 @@
 package br.com.crisgo.iservice.services;
 
 import br.com.crisgo.iservice.DTO.request.RequestSellerDTO;
-import br.com.crisgo.iservice.DTO.response.ResponseAddressDTO;
-import br.com.crisgo.iservice.DTO.response.ResponseReviewsDTO;
 import br.com.crisgo.iservice.DTO.response.ResponseSellerDTO;
 import br.com.crisgo.iservice.DTO.response.ResponseUserDTO;
 import br.com.crisgo.iservice.controllers.SellerController;
 import br.com.crisgo.iservice.exceptions.EntityNotFoundException;
 import br.com.crisgo.iservice.models.*;
-import br.com.crisgo.iservice.repositorys.BankAccountRepository;
 import br.com.crisgo.iservice.repositorys.SellerRepository;
 import br.com.crisgo.iservice.repositorys.UserRepository;
 import jakarta.transaction.Transactional;
@@ -17,6 +14,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.stereotype.Service;
 import br.com.crisgo.iservice.mapper.Mapper;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -28,69 +26,62 @@ public class SellerService {
     private final SellerRepository sellerRepository;
     private final Mapper modelMapper;
     private final UserRepository userRepository;
-    private final BankAccountRepository bankAccountRepository;
+
     @Autowired
-    public SellerService(SellerRepository sellerRepository, Mapper modelMapper, UserRepository userRepository, BankAccountRepository bankAccountRepository) {
+    public SellerService(SellerRepository sellerRepository, Mapper modelMapper, UserRepository userRepository) {
         this.sellerRepository = sellerRepository;
         this.modelMapper = modelMapper;
         this.userRepository = userRepository;
-        this.bankAccountRepository = bankAccountRepository;
     }
 
-    public List<ResponseSellerDTO> findAll() {
+    public List<ResponseSellerDTO> findAll(){
         List<Seller> sellers = sellerRepository.findAll();
-        return modelMapper.map(sellers, ResponseSellerDTO.class);
+        return sellers.stream()
+                .map(seller -> modelMapper.map(seller, ResponseSellerDTO.class))
+                .toList();
     }
 
     public ResponseSellerDTO findById(Long id) {
-        Seller seller = sellerRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario de ID " + id + " não encontrado"));
+        Seller seller = sellerRepository.findByIdOrThrow(id);
         ResponseSellerDTO responseSellerDTO = modelMapper.map(seller, ResponseSellerDTO.class);
         addHateoasLinks(responseSellerDTO);
         return responseSellerDTO;
     }
     @Transactional
-    public ResponseSellerDTO createSeller(RequestSellerDTO requestSellerDTO, Long userId) {
-        // Step 1: Create and save BankAccount
-        BankAccount bankAccount = new BankAccount();
-        bankAccount.setNumberAccount(requestSellerDTO.getNumberAccount());
-        bankAccount.setAgency(requestSellerDTO.getAgency());
-        BankAccount savedBankAccount = bankAccountRepository.save(bankAccount);
-
-        if (savedBankAccount.getBankAccountId() == null) {
-            throw new RuntimeException("Failed to save BankAccount");
-        }
-
-        // Step 2: Fetch the existing User
+    public ResponseUserDTO createSeller(Long userId, RequestSellerDTO requestSellerDTO) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario não encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
 
-        // Step 3: Create the Seller and associate the BankAccount and User
-        Seller seller = modelMapper.map(requestSellerDTO, Seller.class);
-        seller.setBankAccount(savedBankAccount);
-        seller.setUser(user); // No need to save the User again
-        Seller savedSeller = sellerRepository.save(seller);
-
-        // Step 4: Create the Response DTO
-        ResponseSellerDTO responseSellerDTO = new ResponseSellerDTO();
-        responseSellerDTO.setId(savedSeller.getId());
-        responseSellerDTO.setName(user.getName());
-        responseSellerDTO.setPhone(user.getContact());
-        responseSellerDTO.setSellerDescription(savedSeller.getSellerDescription());
-        responseSellerDTO.setCreatedAt(savedSeller.getCreatedAt());
-
-        // Check if Address and User are already associated and mapped
-        if (user.getAddress() != null) {
-            ResponseAddressDTO responseAddressDTO = modelMapper.map(user.getAddress(), ResponseAddressDTO.class);
-            responseSellerDTO.setResponseAddressDTO(responseAddressDTO);
+        if (user.getRole().equals(Role.SELLER)) {
+            throw new IllegalStateException("Usuário já é um vendedor.");
         }
 
-        ResponseUserDTO responseUserDTO = modelMapper.map(user, ResponseUserDTO.class);
-        responseSellerDTO.setResponseUserDTO(responseUserDTO);
+        BankAccount bankAccount = BankAccount.builder()
+                .agency(requestSellerDTO.getAgency())
+                .numberAccount(requestSellerDTO.getNumberAccount())
+                .build();
 
-        return responseSellerDTO;
+        Seller seller = Seller.builder()
+                .user(user)
+                .cpf(requestSellerDTO.getCpf())
+                .sellerDescription(requestSellerDTO.getSellerDescription())
+                .bankAccount(bankAccount)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        sellerRepository.save(seller);
+
+        user.setRole(Role.SELLER);
+        userRepository.save(user);
+
+        return ResponseUserDTO.builder()
+                .id(user.getUserId())
+                .name(user.getName())
+                .username(user.getUsername())
+                .login(user.getLogin())
+                .contact(user.getContact())
+                .build();
     }
-
 
     @Transactional
     public ResponseSellerDTO updateSeller(Long id, RequestSellerDTO requestSellerDTO) {
@@ -98,9 +89,15 @@ public class SellerService {
                 .orElseThrow(() -> new EntityNotFoundException("Usuario de ID " + id + " não encontrado"));
 
         // Map fields from requestSellerDTO onto existingSeller
-        modelMapper.mapOntoExistingObject(requestSellerDTO, existingSeller);
+        Seller updatedSeller = existingSeller.toBuilder()
+                .cpf(requestSellerDTO.getCpf() != null ? requestSellerDTO.getCpf() : existingSeller.getCpf() )
+                .sellerDescription(requestSellerDTO.getSellerDescription() != null ? requestSellerDTO.getSellerDescription() : existingSeller.getSellerDescription())
+                .bankAccount(existingSeller.getBankAccount())
+                .createdAt(existingSeller.getCreatedAt())
+                .build();
 
-        Seller updatedSeller = sellerRepository.save(existingSeller);
+        sellerRepository.save(updatedSeller);
+
         ResponseSellerDTO responseSellerDTO = modelMapper.map(updatedSeller, ResponseSellerDTO.class);
         addHateoasLinks(responseSellerDTO);
         return responseSellerDTO;

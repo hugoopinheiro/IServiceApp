@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Table(name = "seller")
 @Data
 @AllArgsConstructor
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @EqualsAndHashCode(of = "sellerId")
 public class Seller {
