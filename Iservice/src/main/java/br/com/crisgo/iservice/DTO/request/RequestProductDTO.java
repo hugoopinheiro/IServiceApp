@@ -19,6 +19,6 @@ public class RequestProductDTO {
     @NotBlank(message = "Categoria é obrigatorio ")
     private String category;
 
-    @NotNull(message = "Vendedor ID é obrigatorio ")
-    private Long sellerId;
+//    @NotNull(message = "Vendedor ID é obrigatorio ")
+//    private Long sellerId;
 }

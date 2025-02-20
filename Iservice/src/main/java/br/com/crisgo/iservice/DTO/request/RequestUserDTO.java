@@ -11,7 +11,7 @@ public class RequestUserDTO {
     private String name;
 
     @NotBlank(message = "userName is mandatory")
-    private String userName;
+    private String username;
 
     @NotBlank(message = "Email is mandatory")
     @Email

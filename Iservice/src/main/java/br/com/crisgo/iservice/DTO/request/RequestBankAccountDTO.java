@@ -14,7 +14,6 @@ public class RequestBankAccountDTO {
     @NotBlank(message = "Agência é obrigatorio")
     private String agency;
 
-    @NotBlank(message = " Estar ligado a um vendedor é obrigatorio")
     private Seller seller;
 
 }
