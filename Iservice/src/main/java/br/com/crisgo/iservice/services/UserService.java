@@ -2,8 +2,6 @@ package br.com.crisgo.iservice.services;
 
 import br.com.crisgo.iservice.DTO.request.RegisterDTO;
 import br.com.crisgo.iservice.DTO.request.RequestSellerDTO;
-import br.com.crisgo.iservice.DTO.response.ResponseProductDTO;
-import br.com.crisgo.iservice.DTO.response.ResponseReviewsDTO;
 import br.com.crisgo.iservice.DTO.response.ResponseSellerDTO;
 import br.com.crisgo.iservice.DTO.response.ResponseUserDTO;
 import br.com.crisgo.iservice.controllers.AuthenticationController;
@@ -79,11 +77,16 @@ public class UserService {
         Address savedAddress = addressRepository.save(address);
 
         // Convert Register DTO to User Entity using ModelMapper
-        User user = modelMapper.map(registerDTO, User.class);
+        User user = User.builder()
+                .name(registerDTO.name())
+                .userName(registerDTO.username())
+                .login(registerDTO.login())
+                .contact(registerDTO.contact())
+                .password(passwordEncoder.encode(registerDTO.password()))
+                .address(savedAddress)
+                .role(Role.COMMON_USER)  // Default role
+                .build();
 
-        user.setAddress(savedAddress);
-
-        user.setPassword(passwordEncoder.encode(registerDTO.password())); // Encrypt password before saving
 
         userRepository.save(user);
 
@@ -101,43 +104,59 @@ public class UserService {
         user.setPassword(requestUserDTODetails.getPassword());
 
         User updatedUser = userRepository.save(user);
-        ResponseUserDTO responseUserDTO = modelMapper.map(updatedUser, ResponseUserDTO.class);
+
+        ResponseUserDTO responseUserDTO = ResponseUserDTO.builder()
+                .id(updatedUser.getUserId())
+                .name(updatedUser.getName())
+                .username(updatedUser.getUsername())
+                .login(updatedUser.getLogin())
+                .contact(updatedUser.getContact())
+                .build();
+
         addHateoasLinks(responseUserDTO);
         return responseUserDTO;
     }
 
+//    @Transactional
+//    public ResponseUserDTO createSeller(Long userId, RequestSellerDTO requestSellerDTO) {
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new EntityNotFoundException("Usuario não encontrado"));
+//
+//        if (user.getRole().equals(Role.SELLER)) {
+//            throw new IllegalStateException("Usuário já é um vendedor.");
+//        }
+//
+//        logger.info("User: {}", user);
+//
+//        // Create BankAccount
+//        BankAccount bankAccount = BankAccount.builder()
+//                .agency(requestSellerDTO.getAgency())
+//                .numberAccount(requestSellerDTO.getNumberAccount())
+//                .build();
+//
+//
+//        // ✅ Map Seller DTO
+//        Seller seller = modelMapper.map(requestSellerDTO, Seller.class);
+//        seller.setUser(user);
+//        seller.setBankAccount(bankAccount);
+//        sellerRepository.save(seller);
+//
+//        // ✅ Upgrade user role
+//        user.setRole(Role.SELLER);
+//        userRepository.save(user);
+//
+//        return modelMapper.map(seller, ResponseSellerDTO.class).getResponseUserDTO();
+//    }
+
+
     private void addHateoasLinks(ResponseUserDTO userDTO) {
-        Link selfLink = linkTo(methodOn(UserController.class).getUser(userDTO.getUser_id())).withSelfRel();
-        Link updateLink = linkTo(methodOn(UserController.class).updateUser(userDTO.getUser_id(), null)).withRel("update");
-        Link deleteLink = linkTo(methodOn(UserController.class).deleteUser(userDTO.getUser_id())).withRel("delete");
+        Link selfLink = linkTo(methodOn(UserController.class).getUser(userDTO.getId())).withSelfRel();
+        Link updateLink = linkTo(methodOn(UserController.class).updateUser(userDTO.getId(), null)).withRel("update");
+        Link deleteLink = linkTo(methodOn(UserController.class).deleteUser(userDTO.getId())).withRel("delete");
 
         userDTO.add(selfLink);
         userDTO.add(updateLink);
         userDTO.add(deleteLink);
-    }
-
-    @Transactional
-    public ResponseUserDTO createSeller(Long userId, RequestSellerDTO requestSellerDTO) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario não encontrado"));
-
-        // ✅ Ensure the user is not already a seller
-        if (user.getRole().equals(Role.SELLER)) {
-            throw new IllegalStateException("Usuário já é um vendedor.");
-        }
-
-        logger.info("esse é o user '{}'", user);
-
-        // ✅ Map RequestSellerDTO to Seller and associate with User
-        Seller seller = modelMapper.map(requestSellerDTO, Seller.class);
-        seller.setUser(user);
-        sellerRepository.save(seller);
-
-        // ✅ Upgrade user role to SELLER
-        user.setRole(Role.SELLER);
-        userRepository.save(user);
-
-        return modelMapper.map(seller, ResponseSellerDTO.class).getResponseUserDTO();
     }
 
 
