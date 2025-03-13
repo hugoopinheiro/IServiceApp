@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,10 +53,14 @@ public class OrdersService {
         Seller seller = sellerRepository.findById(sellerId)
                 .orElseThrow(() -> new EntityNotFoundException("Vendedor não encontrado"));
 
-        Orders orders = mapper.map(requestOrdersDTO, Orders.class);
-        orders.setUser(user);
-        orders.setProduct(product);
-        orders.setSeller(seller);
+        Orders orders = Orders.builder()
+                .orderDate(LocalDateTime.now())
+                .status(requestOrdersDTO.getStatus())
+                .totalPrice(requestOrdersDTO.getTotalPrice())
+                .user(user)
+                .seller(seller)
+                .product(product)
+                .build();
 
         Orders savedOrder = ordersRepository.save(orders);
         return addHateoasLinks(mapper.map(savedOrder, ResponseOrdersDTO.class));

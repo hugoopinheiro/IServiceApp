@@ -14,6 +14,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,9 +42,13 @@ public class ReviewsService {
                 .orElseThrow(() -> new EntityNotFoundException("Usuario não encontrado"));
 
         // Map RequestReviewsDTO to Reviews entity
-        Reviews reviews = mapper.map(requestReviewsDTO, Reviews.class);
-        reviews.setProduct(product);
-        reviews.setRequestUserDTO(user);
+        Reviews reviews = Reviews.builder()
+                .reviewDate(LocalDateTime.now())
+                .comments(requestReviewsDTO.getComments())
+                .rating(requestReviewsDTO.getRating())
+                .product(product)
+                .user(user)
+                .build();
 
         Reviews savedReview = reviewsRepository.save(reviews);
         return mapper.map(savedReview, ResponseReviewsDTO.class);

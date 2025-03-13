@@ -14,6 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -36,8 +40,14 @@ public class ProductService {
                 .orElseThrow(() -> new EntityNotFoundException("Vendedor não encontrado"));
 
         // Map RequestProductDTO to Product, then set the Seller
-        Product product = mapper.map(requestProductDTO, Product.class);
-        product.setSeller(seller);
+        Product product = Product.builder()
+                .createdAt(LocalDateTime.now())
+                .price(requestProductDTO.getPrice())
+                .category(requestProductDTO.getCategory())
+                .description(requestProductDTO.getDescription())
+                .name(requestProductDTO.getName())
+                .seller(seller)
+                .build();
 
         Product savedProduct = productRepository.save(product);
 
@@ -46,19 +56,30 @@ public class ProductService {
         return responseProductDTO;
     }
 
-    public ResponseProductDTO findBySellerAndName(Long sellerId, String name) {
+    public List<ResponseProductDTO> findBySeller(Long sellerId) {
         // Retrieve Seller
         Seller seller = sellerRepository.findById(sellerId)
                 .orElseThrow(() -> new EntityNotFoundException("Seller not found"));
 
-        // Find Product by Seller and Name
-        Product product = productRepository.findBySellerAndName(seller, name)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found with name: " + name));
+        // Find Products by Seller
+        List<Product> products = productRepository.findBySeller(seller);
 
-        ResponseProductDTO responseProductDTO = mapper.map(product, ResponseProductDTO.class);
-        addHateoasLinks(responseProductDTO);
-        return responseProductDTO;
+        // Check if there are no products
+        if (products.isEmpty()) {
+            throw new EntityNotFoundException("No products found for seller: " + seller.getUser().getName());
+        }
+
+        // Convert List<Product> to List<ResponseProductDTO>
+        List<ResponseProductDTO> responseProductDTOs = products.stream()
+                .map(product -> mapper.map(product, ResponseProductDTO.class))
+                .collect(Collectors.toList());
+
+        // Add HATEOAS links to each DTO
+        responseProductDTOs.forEach(this::addHateoasLinks);
+
+        return responseProductDTOs;
     }
+
 
     @Transactional
     public void deleteById(Long id) {
@@ -68,26 +89,31 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
-//    @Transactional
-//    public ResponseProductDTO updateProduct(Long id, RequestProductDTO productDetails) {
-//        // Fetch existing Product
-//        Product existingProduct = productRepository.findById(id)
-//                .orElseThrow(() -> new EntityNotFoundException("Produto de ID " + id + " não encontrado"));
-//
-//        // Use Dozer to map the fields from productDetails onto the existing product
-//        mapper.mapOntoExistingObject(productDetails, existingProduct);
-//
-//        // Link the existing product to the correct seller if needed
-//        Seller seller = sellerRepository.findById(productDetails.getSellerId())
-//                .orElseThrow(() -> new EntityNotFoundException("Vendedor não encontrado"));
-//        existingProduct.setSeller(seller);
-//
-//        // Save and return the updated product
-//        Product updatedProduct = productRepository.save(existingProduct);
-//        ResponseProductDTO responseProductDTO = mapper.map(updatedProduct, ResponseProductDTO.class);
-//        addHateoasLinks(responseProductDTO);
-//        return responseProductDTO;
-//    }
+    @Transactional
+    public ResponseProductDTO updateProduct(Long id, RequestProductDTO requestProductDTO) {
+        // Fetch existing Product
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Produto de ID " + id + " não encontrado"));
+
+        // Fetch seller entity from the database
+        Seller seller = sellerRepository.findById(requestProductDTO.getSellerId())
+                .orElseThrow(() -> new EntityNotFoundException("Vendedor de ID " + requestProductDTO.getSellerId() + " não encontrado"));
+
+        // Update existing product fields instead of creating a new object
+        existingProduct.setPrice(requestProductDTO.getPrice());
+        existingProduct.setCategory(requestProductDTO.getCategory());
+        existingProduct.setDescription(requestProductDTO.getDescription());
+        existingProduct.setName(requestProductDTO.getName());
+        existingProduct.setSeller(seller); // Set the fetched Seller
+
+        // Save and return the updated product
+        productRepository.save(existingProduct);
+        ResponseProductDTO responseProductDTO = mapper.map(existingProduct, ResponseProductDTO.class);
+        addHateoasLinks(responseProductDTO);
+        return responseProductDTO;
+    }
+
+
 
     private void addHateoasLinks(ResponseProductDTO productDTO) {
         //Link selfLink = linkTo(methodOn(ProductController.class).getProductBySellerAndName(productDTO.getId())).withSelfRel();

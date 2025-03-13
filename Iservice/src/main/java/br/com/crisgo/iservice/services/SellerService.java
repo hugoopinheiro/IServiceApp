@@ -3,12 +3,15 @@ package br.com.crisgo.iservice.services;
 import br.com.crisgo.iservice.DTO.request.RequestSellerDTO;
 import br.com.crisgo.iservice.DTO.response.ResponseSellerDTO;
 import br.com.crisgo.iservice.DTO.response.ResponseUserDTO;
+import br.com.crisgo.iservice.controllers.AuthenticationController;
 import br.com.crisgo.iservice.controllers.SellerController;
 import br.com.crisgo.iservice.exceptions.EntityNotFoundException;
 import br.com.crisgo.iservice.models.*;
 import br.com.crisgo.iservice.repositorys.SellerRepository;
 import br.com.crisgo.iservice.repositorys.UserRepository;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.stereotype.Service;
@@ -22,7 +25,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Service
 public class SellerService {
-
     private final SellerRepository sellerRepository;
     private final Mapper modelMapper;
     private final UserRepository userRepository;
@@ -42,7 +44,8 @@ public class SellerService {
     }
 
     public ResponseSellerDTO findById(Long id) {
-        Seller seller = sellerRepository.findByIdOrThrow(id);
+        Seller seller = sellerRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário nao encontrado"));
         ResponseSellerDTO responseSellerDTO = modelMapper.map(seller, ResponseSellerDTO.class);
         addHateoasLinks(responseSellerDTO);
         return responseSellerDTO;
@@ -78,7 +81,7 @@ public class SellerService {
                 .id(user.getUserId())
                 .name(user.getName())
                 .username(user.getUsername())
-                .login(user.getLogin())
+                .email(user.getEmail())
                 .contact(user.getContact())
                 .build();
     }
