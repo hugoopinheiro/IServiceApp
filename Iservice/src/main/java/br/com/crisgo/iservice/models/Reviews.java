@@ -1,10 +1,8 @@
 package br.com.crisgo.iservice.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 import java.time.LocalDateTime;
 
 
@@ -13,6 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @EqualsAndHashCode(of = "reviewId")
 public class Reviews {
 
@@ -32,7 +31,7 @@ public class Reviews {
 
     @ManyToOne // One user can have many reviews
     @JoinColumn(name = "user_id")
-    private User requestUserDTO;
+    private User user;
 
     @ManyToOne // One product can have many reviews
     @JoinColumn(name = "product_id")

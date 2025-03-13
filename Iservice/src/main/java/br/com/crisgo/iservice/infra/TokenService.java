@@ -23,7 +23,7 @@ public class TokenService {
             System.out.println("Generated Token: " + secret);
             return JWT.create()
                     .withIssuer("auth-api")
-                    .withSubject(user.getLogin())
+                    .withSubject(user.getEmail())
                     .withExpiresAt(genExpirationDate())
                     .sign(algorithm);
 

@@ -3,10 +3,7 @@ package br.com.crisgo.iservice.models;
 import br.com.crisgo.iservice.DTO.request.RequestProductDTO;
 import br.com.crisgo.iservice.DTO.request.RequestSellerDTO;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -15,6 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "products")
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @EqualsAndHashCode(of = "productId")
 public class Product {
 

@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api/v1/product/")
 @Validated
@@ -29,12 +31,12 @@ public class ProductController {
         return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
     }
 
-    @GetMapping("seller/{sellerId}/product/{name}")
-    public ResponseEntity<ResponseProductDTO> getProductBySellerAndName(
+    @GetMapping("seller/{sellerId}")
+    public ResponseEntity<ResponseProductDTO> getProductBySeller(
             @PathVariable Long sellerId,
             @PathVariable String name) {
-        ResponseProductDTO product = productService.findBySellerAndName(sellerId, name);
-        return ResponseEntity.ok(product);
+        List<ResponseProductDTO> product = productService.findBySeller(sellerId);
+        return ResponseEntity.ok((ResponseProductDTO) product);
     }
 
     @DeleteMapping("{id}")
@@ -43,11 +45,11 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
-//    @PutMapping("/{id}")
-//    public ResponseEntity<ResponseProductDTO> updateProduct(
-//            @PathVariable Long id,
-//            @RequestBody @Validated RequestProductDTO productDetails) {
-//        ResponseProductDTO updatedProduct = productService.updateProduct(id, productDetails);
-//        return ResponseEntity.ok(updatedProduct);
-//    }
+    @PutMapping("/{id}")
+    public ResponseEntity<ResponseProductDTO> updateProduct(
+            @PathVariable Long id,
+            @RequestBody @Validated RequestProductDTO productDetails) {
+        ResponseProductDTO updatedProduct = productService.updateProduct(id, productDetails);
+        return ResponseEntity.ok(updatedProduct);
+    }
 }

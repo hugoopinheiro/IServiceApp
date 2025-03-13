@@ -31,11 +31,11 @@ public class User implements UserDetails{
     @Column(name = "name")
     private String name;
 
-    @Column(name = "user_name")
-    private String userName;
+    @Column(name = "username")
+    private String username;
 
     @Column(name = "email")
-    private String login;
+    private String email;
 
     @Column(name = "password")
     private String password;
@@ -73,15 +73,15 @@ public class User implements UserDetails{
                 .map(Permission::getDescription)
                 .collect(Collectors.toList());
     }
-    public User(String login, String password, Role role){
-        this.login = login;
+    public User(String email, String password, Role role){
+        this.email = email;
         this.password = password;
         this.role = role;
     }
 
     @Override
     public String getUsername() {
-        return this.userName; // Use the login field for authentication
+        return this.username; // Use the login field for authentication
     }
 
     @Override

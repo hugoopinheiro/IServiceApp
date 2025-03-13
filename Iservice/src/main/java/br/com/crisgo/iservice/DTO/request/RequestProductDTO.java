@@ -1,5 +1,6 @@
 package br.com.crisgo.iservice.DTO.request;
 
+import br.com.crisgo.iservice.models.Seller;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -19,6 +20,6 @@ public class RequestProductDTO {
     @NotBlank(message = "Categoria é obrigatorio ")
     private String category;
 
-//    @NotNull(message = "Vendedor ID é obrigatorio ")
-//    private Long sellerId;
+    @NotNull(message = "Vendedor é obrigatorio ")
+    private Long sellerId;
 }

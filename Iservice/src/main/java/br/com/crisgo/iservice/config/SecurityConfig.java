@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -18,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
     private final AuthorizationService authorizationService;
     @Autowired
@@ -47,6 +49,8 @@ public class SecurityConfig {
 
                         //REVIEWS
                         .requestMatchers(HttpMethod.POST, "api/v1/reviews/**").hasAnyRole("ADMIN", "COMMON_USER", "SELLER")
+                        .requestMatchers(HttpMethod.DELETE, "api/v1/reviews/**").hasAnyRole("ADMIN", "COMMON_USER")
+                        .requestMatchers(HttpMethod.GET, "api/v1/reviews/**").hasAnyRole("ADMIN", "COMMON_USER", "SELLER")
 
                         //SELLER
                         .requestMatchers(HttpMethod.POST, "api/v1/seller/**").hasAnyRole("ADMIN", "COMMON_USER")
@@ -55,12 +59,17 @@ public class SecurityConfig {
 
                         //ORDERS
                         .requestMatchers(HttpMethod.POST, "api/v1/orders/**").hasAnyRole("ADMIN", "COMMON_USER", "SELLER")
+                        .requestMatchers(HttpMethod.GET, "api/v1/seller/**").hasAnyRole("ADMIN","COMMON_USER", "SELLER")
+                        .requestMatchers(HttpMethod.DELETE, "api/v1/seller/**").hasAnyRole("ADMIN", "COMMON_USER", "SELLER")
 
                         //ADDRESS
                         .requestMatchers(HttpMethod.GET, "api/v1/address/**").hasAnyRole("ADMIN", "COMMON_USER", "SELLER")
 
                         //PRODUCT
+                        .requestMatchers(HttpMethod.DELETE, "api/v1/product/**").hasAnyRole("ADMIN", "SELLER")
                         .requestMatchers(HttpMethod.POST, "/api/v1/product/**").hasAnyRole("ADMIN", "SELLER")
+                        .requestMatchers(HttpMethod.PUT, "api/v1/product/**").hasAnyRole("ADMIN","SELLER")
+                        .requestMatchers(HttpMethod.GET, "api/v1/product/**").hasAnyRole("ADMIN","SELLER")
 
                         // swagger
                         .requestMatchers("/v3/api-docs/**").permitAll()

@@ -3,7 +3,7 @@ package br.com.crisgo.iservice.DTO.request;
 
 import br.com.crisgo.iservice.models.Role;
 
-public record RegisterDTO(String name, String username, String login, String password, Role role, String contact, String street, String cep, String complement, String state, String houseNumber, RequestAddressDTO addressDTO) {
+public record RegisterDTO(String name, String username, String email, String password, Role role, String contact, String street, String cep, String complement, String state, String houseNumber, RequestAddressDTO addressDTO) {
     @Override
     public String name() {
         return name;
@@ -15,8 +15,8 @@ public record RegisterDTO(String name, String username, String login, String pas
     }
 
     @Override
-    public String login() {
-        return login;
+    public String email() {
+        return email;
     }
 
     @Override

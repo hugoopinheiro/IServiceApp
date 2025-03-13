@@ -14,7 +14,7 @@ public class ResponseUserDTO extends RepresentationModel<ResponseUserDTO> {
     private Long id;
     private String name;
     private String username;
-    private String login;
+    private String email;
     private String contact;
     private LocalDateTime createdAt;
     private ResponseAddressDTO responseAddressDTO;

@@ -30,7 +30,7 @@ public class SecurityFilter extends OncePerRequestFilter {
             var login = tokenService.validateToken(token);
 
             if (login != null && !login.equals("INVALID")) { // Prevent NullPointerException
-                UserDetails user = userRepository.findByLogin(login);
+                UserDetails user = userRepository.findByEmail(login);
 
                 if (user != null) { // Ensure user exists before setting authentication
                     var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
