@@ -1,37 +1,35 @@
-server:
-  port: 8080
 email:
   subject: "Defaul subject"
   message: "Default message"
 spring:
   application:
     name: Iservice
+
   datasource:
-    url: jdbc:postgresql://postgres:5432/Iservice
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/Iservice
+    username: postgres
+    password: 14273119
     driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
-      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO}
+      ddl-auto: none
   mail:
     host: smtp.gmail.com
     port: 587
     username: ${EMAIL_USERNAME}
     password: ${EMAIL_PASSWORD}
-    from: ${EMAIL_FROM:no-reply@yourdomain.com}
     properties:
       mail.smtp.auth: true
-      mail.smtp.starttls.enable: true
-      mail.smtp.starttls.required: true
+      mail.smtp.start.tls: true
+      mail.smtp.start.required: true
+
   spring-doc:
     pathsToMatch:
       - /auth/**
       - /api/v1/**
     swagger-ui:
       use-root-path: true
-  profiles:
-    active: dev
 api:
   security:
     token:

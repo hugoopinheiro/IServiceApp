@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: Iservice
+
+  datasource:
+    url: jdbc:postgresql://postgres:5432/Iservice # "postgres" é o nome do serviço no docker-compose
+    username: postgres
+    password: 14273119
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  spring-doc:
+    pathsToMatch:
+      - /auth/**
+      - /api/v1/**
+    swagger-ui:
+      use-root-path: true
+
+api:
+  security:
+    token:
+      secret: ${JWT_SECRET:my-secret-key}
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
+    org.springframework: INFO
