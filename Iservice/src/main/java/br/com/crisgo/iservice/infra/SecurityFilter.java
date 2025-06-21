@@ -29,17 +29,17 @@ public class SecurityFilter extends OncePerRequestFilter {
         if (token != null) {
             var login = tokenService.validateToken(token);
 
-            if (login != null && !login.equals("INVALID")) { // Prevent NullPointerException
+            if (login != null && !login.equals("INVALID")) {
                 UserDetails user = userRepository.findByEmail(login);
 
-                if (user != null) { // Ensure user exists before setting authentication
+                if (user != null) {
                     var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }
         }
 
-        filterChain.doFilter(request, response); // Continue filter chain regardless of token validation
+        filterChain.doFilter(request, response);
     }
 
 
@@ -48,7 +48,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return null;
         }
-        return authHeader.substring(7).trim(); // Remove "Bearer " and any accidental spaces
+        return authHeader.substring(7).trim();
     }
 
 }

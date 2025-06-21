@@ -56,7 +56,7 @@ public class User implements UserDetails{
     @Column(name = "active")
     private Boolean active = true;
 
-    private List<Permission> permissions;
+//    private List<Permission> permissions;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
@@ -68,11 +68,11 @@ public class User implements UserDetails{
         else return List.of(new SimpleGrantedAuthority("ROLE_COMMON_USER"));
     }
 
-    public List<String> getRoles() {
-        return permissions.stream()
-                .map(Permission::getDescription)
-                .collect(Collectors.toList());
-    }
+//    public List<String> getRoles() {
+//        return permissions.stream()
+//                .map(Permission::getDescription)
+//                .collect(Collectors.toList());
+//    }
     public User(String email, String password, Role role){
         this.email = email;
         this.password = password;

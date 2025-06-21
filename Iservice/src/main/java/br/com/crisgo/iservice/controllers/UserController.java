@@ -62,28 +62,44 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
     })
     @PutMapping(value = "/{id}")
-    public ResponseEntity<EntityModel<ResponseUserDTO>> updateUser(
+    public ResponseEntity<ResponseUserDTO> updateUser(
             @Parameter(description = "User ID", required = true) @PathVariable Long id, @RequestBody @Validated RequestUserDTO requestUserDTODetails) {
+
         ResponseUserDTO updatedUser = userService.updateUser(id, requestUserDTODetails);
-        EntityModel<ResponseUserDTO> resource = EntityModel.of(updatedUser);
-        return ResponseEntity.ok(resource);
+        return ResponseEntity.ok(updatedUser);
     }
-//    @Operation(summary = "Create seller", description = "Converts a user into a seller")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "User converted to seller successfully", content = @Content(schema = @Schema(implementation = ResponseUserDTO.class))),
-//            @ApiResponse(responseCode = "400", description = "Invalid request data", content = @Content),
-//            @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
-//    })
-//    @PostMapping("/{id}")
-//    public ResponseEntity<ResponseUserDTO> createSeller(
-//            @PathVariable Long id,
-//            @RequestBody @Valid RequestSellerDTO requestSellerDTO) { // ✅ Only one @RequestBody
-//
-//        ResponseUserDTO response = userService.createSeller(id, requestSellerDTO);
-//        return ResponseEntity.ok(response);
-//    }
 
+// Método para listar todos os usuários com paginação e filtros opcionais
+// public ResponseEntity<Page<ResponseUserDTO>> listUsers(
+//     @RequestParam(value = "page", defaultValue = "0") int page,
+//     @RequestParam(value = "size", defaultValue = "10") int size,
+//     @RequestParam(value = "name", required = false) String name,
+//     @RequestParam(value = "email", required = false) String email);
 
+// Método para realizar logout do usuário
+// public ResponseEntity<Void> logoutUser(@RequestHeader("Authorization") String token);
 
+// Método para alterar a senha do usuário
+// public ResponseEntity<Void> changePassword(
+//     @PathVariable Long id, 
+//     @RequestBody @Validated ChangePasswordRequest passwordRequest);
 
+// Método para iniciar processo de recuperação de senha
+// public ResponseEntity<Void> resetPassword(@RequestBody @Validated ResetPasswordRequest resetPasswordRequest);
+
+// Método para verificar a disponibilidade de e-mail ou nome de usuário
+// public ResponseEntity<Boolean> checkAvailability(
+//     @RequestParam(value = "email", required = false) String email,
+//     @RequestParam(value = "username", required = false) String username);
+
+// Método para atualizar o papel (role) do usuário
+// public ResponseEntity<Void> updateRole(
+//     @PathVariable Long id,
+//     @RequestBody @Validated UpdateRoleRequest updateRoleRequest);
+
+// Método para verificar e confirmar e-mail do usuário
+// public ResponseEntity<Void> verifyEmail(@RequestParam(value = "token") String token);
+
+// Método para reativar (habilitar) a conta do usuário
+// public ResponseEntity<Void> enableUserAccount(@PathVariable Long id);
 }

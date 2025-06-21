@@ -75,6 +75,11 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/swagger-ui.html").permitAll()
+                        .requestMatchers("/swagger-ui.index/html").permitAll()
+                        //email
+                        .requestMatchers("/api/v1/email/**").permitAll()
+                        // Docker
+                        .requestMatchers(HttpMethod.GET, "/api/v1/docker/**").permitAll()
 
                         .anyRequest().hasAnyRole("ADMIN", "COMMON_USER", "SELLER")
                 )
