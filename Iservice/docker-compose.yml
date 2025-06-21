@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16.3
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: Iservice
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 14273119
+    ports:
+      - "5432:5432"
+    networks:
+      - crisgo
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  iservice:
+    build:
+      context: .
+    image: iservice:1.0
+    container_name: iservice   # Nome fixo para o container
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker # Define o profile ativo como 'docker'
+      JWT_SECRET: ${JWT_SECRET}
+    env_file:
+      - .env
+    networks:
+      - crisgo
+
+networks:
+  crisgo:
+    driver: bridge
