@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Code base ###
+/.env
+/application*.yaml
+/application*.yml
